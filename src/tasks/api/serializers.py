@@ -13,8 +13,9 @@ class TextClassificationSerializer(serializers.ModelSerializer):
             'project',
             'text_file_path',
             'label',
+            'contributor',
         ]
-        read_only_fields = ['id', 'project']
+        read_only_fields = ['id', 'project', 'contributor']
 
     def get_text_file_path(self, obj):
         return obj.text_file.url
@@ -30,8 +31,9 @@ class ImageClassificationSerializer(serializers.ModelSerializer):
             'project',
             'image_file_path',
             'label',
+            'contributor',
         ]
-        read_only_fields = ['id', 'project']
+        read_only_fields = ['id', 'project', 'contributor']
 
     def get_image_file_path(self, obj):
         return obj.image_file.url
