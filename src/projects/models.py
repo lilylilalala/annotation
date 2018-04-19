@@ -15,6 +15,13 @@ class Project(models.Model):
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
+    description = models.TextField(blank=True)
+    update = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.founder.username) + '_' + self.project_type
+
+    @property
+    def owner(self):
+        return self.founder

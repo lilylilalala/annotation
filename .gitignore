@@ -108,7 +108,7 @@ ENV/
 /site
 
 # mypy
+*.sublime-project
 .mypy_cache/
 .idea/
-*.sublime-project
 media_root/

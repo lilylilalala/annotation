@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             name='TextClassification',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text_file', models.FileField(storage=django.core.files.storage.FileSystemStorage(location='/home/eli/django_projects/annotatation/media_root'), upload_to=tasks.models.upload_text_file_path)),
+                ('text_file', models.FileField(storage=django.core.files.storage.FileSystemStorage(location='/home/eli/django_projects/annotation/media_root'), upload_to=tasks.models.upload_text_file_path)),
                 ('label', models.CharField(blank=True, choices=[('政治', 'political'), ('体育', 'sport')], max_length=128, null=True)),
                 ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='projects.Project')),
             ],

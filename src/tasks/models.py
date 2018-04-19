@@ -36,7 +36,9 @@ class TextClassification(models.Model):
         upload_to=upload_text_file_path,
         storage=FileSystemStorage(location=settings.MEDIA_ROOT),
     )
-    label = models.CharField(max_length=128, blank=True, null=True, choices=TEXT_CLASSIFICATION_LABEL_TYPE)
+    label = models.CharField(max_length=128, blank=True, choices=TEXT_CLASSIFICATION_LABEL_TYPE)
+    update = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.project) + '_' + str(self.id)
@@ -60,8 +62,10 @@ IMAGE_CLASSIFICATION_LABEL_TYPE = (
 
 class ImageClassification(models.Model):
     project = models.ForeignKey(Project)
-    image = models.ImageField(upload_to=upload_image_file_path, null=True, blank=True)
-    label = models.CharField(max_length=128, blank=True, null=True, choices=IMAGE_CLASSIFICATION_LABEL_TYPE)
+    image_file = models.ImageField(upload_to=upload_image_file_path, null=True, blank=True)
+    label = models.CharField(max_length=128, blank=True, choices=IMAGE_CLASSIFICATION_LABEL_TYPE)
+    update = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.project) + '_' + str(self.id)
