@@ -15,6 +15,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'founder',
             'contributors',
             'description',
+            'project_file',
             'uri',
         ]
         read_only_fields = ['founder']

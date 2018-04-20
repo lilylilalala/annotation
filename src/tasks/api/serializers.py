@@ -4,7 +4,7 @@ from tasks.models import TextClassification, ImageClassification
 
 
 class TextClassificationSerializer(serializers.ModelSerializer):
-    text_file_path = serializers.SerializerMethodField(read_only=True)
+    # text_file_path = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = TextClassification
@@ -15,14 +15,14 @@ class TextClassificationSerializer(serializers.ModelSerializer):
             'label',
             'contributor',
         ]
-        read_only_fields = ['id', 'project', 'contributor']
+        read_only_fields = ['id', 'project', 'contributor', 'text_file_path']
 
-    def get_text_file_path(self, obj):
-        return obj.text_file.url
+    # def get_text_file_path(self, obj):
+    #     return obj.text_file.url
 
 
 class ImageClassificationSerializer(serializers.ModelSerializer):
-    image_file_path = serializers.SerializerMethodField(read_only=True)
+    # image_file_path = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ImageClassification
@@ -33,7 +33,7 @@ class ImageClassificationSerializer(serializers.ModelSerializer):
             'label',
             'contributor',
         ]
-        read_only_fields = ['id', 'project', 'contributor']
+        read_only_fields = ['id', 'project', 'contributor', 'image_file_path']
 
-    def get_image_file_path(self, obj):
-        return obj.image_file.url
+    # def get_image_file_path(self, obj):
+    #     return obj.image_file.url

@@ -7,7 +7,7 @@ from six.moves import xrange
 from django.conf import settings
 from django.utils import timezone
 
-from projects.models import Project
+# from projects.models import Project
 
 
 def get_filename_ext(filepath):
