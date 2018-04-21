@@ -17,7 +17,16 @@ jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 User = get_user_model()
 
 
-class AuthAPIView(APIView):
+class RegisterAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
+    permission_classes = [AnonPermissionOnly]
+
+    def get_serializer_context(self, *args, **kwargs):
+        return {"request": self.request}
+
+
+class LoginAPIView(APIView):
     permission_classes = [AnonPermissionOnly]
 
     def post(self, request, *args, **kwargs):
@@ -39,12 +48,3 @@ class AuthAPIView(APIView):
                 response = jwt_response_payload_handler(token, user, request=request)
                 return Response(response)
         return Response({"detail": "Invalid credentials"}, status=401)
-
-
-class RegisterAPIView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserRegisterSerializer
-    permission_classes = [AnonPermissionOnly]
-
-    def get_serializer_context(self, *args, **kwargs):
-        return {"request": self.request}

@@ -59,7 +59,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                 username=validated_data.get('username'),
                 email=validated_data.get('email'))
         user_obj.set_password(validated_data.get('password'))
-        user_obj.is_active = False
+        user_obj.is_active = True
         user_obj.save()
         return user_obj
 
