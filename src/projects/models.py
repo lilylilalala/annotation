@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -17,7 +19,10 @@ PROJECT_TYPE = (
 
 def upload_project_file_path(instance, filename):
     name, ext = get_filename_ext(filename)
-    new_filename = random_string_generator()
+    while True:
+        new_filename = random_string_generator()
+        if new_filename not in os.listdir(settings.MEDIA_ROOT):
+            break
     final_filename = '{new_filename}{ext}'.format(new_filename=new_filename, ext=ext)
     return final_filename
 
