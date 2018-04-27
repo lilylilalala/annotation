@@ -4,7 +4,7 @@ from rest_framework import generics, mixins, permissions
 from projects.models import Project
 from .serializers import ProjectSerializer, ProjectInlineUserSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly
-from accounts.api.user.serializers import UserInlineSerializer
+from accounts.api.users.serializers import UserInlineSerializer
 
 
 User = get_user_model()
@@ -15,7 +15,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = ProjectSerializer
 
     passed_id = None
-    search_fields = ('project_type', 'founder_username')
+    search_fields = ('project_type', 'founder_email')
     ordering_fields = ('project_type', 'timestamp')
     queryset = Project.objects.all()
 
@@ -49,8 +49,8 @@ class ContributorsListView(mixins.UpdateModelMixin, generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = UserInlineSerializer
 
-    search_fields = ('username', 'email')
-    ordering_fields = ('username', 'email')
+    search_fields = ('email', 'full_name')
+    ordering_fields = ('email', 'full_name')
 
     def get_queryset(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)

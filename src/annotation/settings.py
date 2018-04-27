@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'accounts',
     'projects',
     'tasks',
 ]
@@ -136,3 +137,7 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media_root')
+
+
+# Custom user model
+AUTH_USER_MODEL = 'accounts.User'

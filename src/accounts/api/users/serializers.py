@@ -16,14 +16,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id',
-            'username',
+            'email',
             'uri',
             'project',
         ]
 
     def get_uri(self, obj):
         request = self.context.get('request')
-        return api_reverse('api-user:detail', kwargs={'username': obj.username}, request=request)
+        return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)
 
     def get_project(self, obj):
         request = self.context.get('request')
@@ -45,6 +45,24 @@ class UserDetailSerializer(serializers.ModelSerializer):
         return data
 
 
+class UserDetailUpdateSerializer(serializers.ModelSerializer):
+    uri = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'email',
+            'full_name',
+            'phone_number',
+            'uri',
+        ]
+
+    def get_uri(self, obj):
+        request = self.context.get('request')
+        return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)
+
+
 class UserInlineSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
 
@@ -52,11 +70,11 @@ class UserInlineSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id',
-            'username',
+            'email',
             'uri',
         ]
-        read_only_fields = ['username']
+        read_only_fields = ['email']
 
     def get_uri(self, obj):
         request = self.context.get('request')
-        return api_reverse('api-user:detail', kwargs={'username': obj.username}, request=request)
+        return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)

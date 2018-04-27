@@ -26,8 +26,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'username',
             'email',
+            'full_name',
+            'phone_number',
             'password',
             'password2',
             'token',
@@ -41,10 +42,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("User with this email already exists")
         return value
 
-    def validate_username(self, value):
-        qs = User.objects.filter(username__iexact=value)
+    def validate_phone_number(self, value):
+        qs = User.objects.filter(phone_number__iexact=value)
         if qs.exists():
-            raise serializers.ValidationError("User with this username already exists")
+            raise serializers.ValidationError("User with this phone number already exists")
         return value
 
     def validate(self, data):
@@ -56,8 +57,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_obj = User(
-                username=validated_data.get('username'),
-                email=validated_data.get('email'))
+            email=validated_data.get('email'),
+            full_name=validated_data.get('full_name', ''),
+            phone_number=validated_data.get('phone_number'),
+        )
         user_obj.set_password(validated_data.get('password'))
         user_obj.is_active = True
         user_obj.save()

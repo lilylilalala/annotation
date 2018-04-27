@@ -33,11 +33,12 @@ class LoginAPIView(APIView):
         if request.user.is_authenticated():
             return Response({'detail': 'You are already authenticated'}, status=400)
         data = request.data
-        username = data.get('username')
+        email = data.get('email')
+        phone_number = data.get('phone_number')
         password = data.get('password')
         qs = User.objects.filter(
-                Q(username__iexact=username) |
-                Q(email__iexact=username)
+                Q(email__iexact=email) |
+                Q(phone_number__iexact=phone_number)
             ).distinct()
         if qs.count() == 1:
             user_obj = qs.first()
