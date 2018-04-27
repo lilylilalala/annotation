@@ -59,7 +59,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user_obj = User(
             email=validated_data.get('email'),
             full_name=validated_data.get('full_name', ''),
-            phone_number=validated_data.get('phone_number'),
+            phone_number=validated_data.get('phone_number', ''),
         )
         user_obj.set_password(validated_data.get('password'))
         user_obj.is_active = True

@@ -14,18 +14,18 @@ User = get_user_model()
 
 class AUTHAPITestCase(APITestCase):
     def setUp(self):
-        user = User.objects.create(username='admin', email='admin@gmail.com')
+        user = User.objects.create(email='admin@gmail.com')
         user.set_password("mydjango")
         user.save()
 
     def test_created_user(self):
-        qs = User.objects.filter(username='admin')
+        qs = User.objects.filter(email='admin@gmail.com')
         self.assertEqual(qs.count(), 1)
 
     def test_register_user_api(self):
         register_url = api_reverse('api-auth:register')
         data = {
-            'username': 'user_0',
+            'full_name': 'user_0',
             'email': 'user_0@gmail.com',
             'password': 'mydjango',
             'password2': 'mydjango'
@@ -38,7 +38,7 @@ class AUTHAPITestCase(APITestCase):
     def test_register_user_api_fail(self):
         register_url = api_reverse('api-auth:register')
         data = {
-            'username': 'user_0',
+            'full_name': 'user_0',
             'email': 'user_0@gmail.com',
             'password': 'mydjango',
         }
@@ -49,7 +49,7 @@ class AUTHAPITestCase(APITestCase):
     def test_login_user_api(self):
         login_url = api_reverse('api-auth:login')
         data = {
-            'username': 'admin',
+            'email': 'admin@gmail.com',
             'password': 'mydjango',
         }
         response = self.client.post(login_url, data, format='json')
@@ -63,7 +63,7 @@ class AUTHAPITestCase(APITestCase):
     def test_login_user_api_fail(self):
         login_url = api_reverse('api-auth:login')
         data = {
-            'username': 'fake_user',
+            'full_name': 'fake_user',
             'password': 'mydjango',
         }
         response = self.client.post(login_url, data, format='json')
@@ -77,7 +77,7 @@ class AUTHAPITestCase(APITestCase):
     def test_token_register_api(self):
         login_url = api_reverse('api-auth:login')
         data = {
-            'username': 'admin',
+            'email': 'admin@gmail.com',
             'password': 'mydjango',
         }
         response = self.client.post(login_url, data, format='json')
@@ -87,7 +87,7 @@ class AUTHAPITestCase(APITestCase):
 
         register_url = api_reverse('api-auth:register')
         data2 = {
-            'username': 'user_1',
+            'full_name': 'user_1',
             'email': 'user_1@gmail.com',
             'password': 'mydjango',
             'password2': 'mydjango'
@@ -98,7 +98,7 @@ class AUTHAPITestCase(APITestCase):
     def test_token_login_api(self):
         login_url = api_reverse('api-auth:login')
         data = {
-            'username': 'admin',
+            'email': 'admin@gmail.com',
             'password': 'mydjango',
         }
         response = self.client.post(login_url, data, format='json')

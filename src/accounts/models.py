@@ -44,7 +44,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True)
-    full_name = models.CharField(max_length=255, blank=True, null=True)
+    full_name = models.CharField(max_length=255, blank=True)
     phone_regex = RegexValidator(regex=r'^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$',
                                  message="Invalid phone number")
     phone_number = models.CharField(validators=[phone_regex], max_length=11, blank=True)
