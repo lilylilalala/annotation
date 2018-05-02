@@ -3,6 +3,12 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
+USER_TYPE = (
+    ('administrator', '管理员'),
+    ('ordinary_user', '普通用户'),
+)
+
+
 class UserManager(BaseUserManager):
     def create_user(self, email, full_name=None, password=None, is_active=True, is_staff=False, is_admin=False):
         if not email:
@@ -51,6 +57,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
+    user_type = models.CharField(max_length=255, choices=USER_TYPE, default='ordinary_user')
     timestamp = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
