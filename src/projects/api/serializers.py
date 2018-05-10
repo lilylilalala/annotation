@@ -15,6 +15,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'founder',
             'contributors',
             'description',
+            'verify_status',
+            'verify_staff',
             'project_file',
             'uri',
         ]
@@ -37,3 +39,18 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'uri',
         ]
         read_only_fields = ['project_type', 'founder']
+
+
+class ProjectInlineVerifySerializer(ProjectSerializer):
+    class Meta:
+        model = Project
+        fields = [
+            'id',
+            'project_type',
+            'founder',
+            'description',
+            'verify_status',
+            'project_file',
+            'uri',
+        ]
+        read_only_fields = ['project_type', 'founder', 'description', 'project_file']

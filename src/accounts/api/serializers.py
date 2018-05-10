@@ -43,6 +43,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone_number(self, value):
+        if not value:
+            return value
         qs = User.objects.filter(phone_number__iexact=value)
         if qs.exists():
             raise serializers.ValidationError("User with this phone number already exists")

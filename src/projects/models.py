@@ -16,6 +16,12 @@ PROJECT_TYPE = (
     ('ImageClassification', '图像分类'),
 )
 
+VERIFY_STATUS_TYPE = (
+    ('verifying', '审核中'),
+    ('verification succeed', '审核通过'),
+    ('verification failed', '审核未通过'),
+)
+
 
 def upload_project_file_path(instance, filename):
     name, ext = get_filename_ext(filename)
@@ -30,8 +36,10 @@ def upload_project_file_path(instance, filename):
 class Project(models.Model):
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
-    contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
+    contributors = models.ManyToManyField(User, blank=True, null=True, related_name='contributed_projects')
     description = models.TextField(blank=True)
+    verify_status = models.CharField(max_length=255, default='verifying', choices=VERIFY_STATUS_TYPE)
+    verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
     project_file = models.FileField(
         upload_to=upload_project_file_path,
         storage=FileSystemStorage(location=settings.MEDIA_ROOT),

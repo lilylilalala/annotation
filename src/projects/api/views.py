@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions
 
 from projects.models import Project
-from .serializers import ProjectSerializer, ProjectInlineUserSerializer
-from accounts.api.permissions import IsOwnerOrReadOnly
+from .serializers import ProjectSerializer, ProjectInlineUserSerializer, ProjectInlineVerifySerializer
+from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 from accounts.api.users.serializers import UserInlineSerializer
 
 
@@ -67,3 +69,46 @@ class ContributorsListView(mixins.UpdateModelMixin, generics.ListAPIView):
             project.contributors.remove(user)
         else:
             project.contributors.add(user)
+
+
+class ProjectVerifyListView(generics.ListAPIView):
+    Permission_classes = [IsStaff]
+    serializer_class = ProjectSerializer
+
+    search_fields = ('project_type', 'founder_email')
+    ordering_fields = ('project_type', 'timestamp')
+    queryset = Project.objects.filter(verify_status='verifying')
+
+
+class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    Permission_classes = [IsStaff]
+    serializer_class = ProjectInlineVerifySerializer
+
+    def get_object(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        return project
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        if instance:
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            if getattr(instance, '_prefetched_objects_cache', None):
+                instance._prefetched_objects_cache = {}
+
+            return Response(serializer.data)
+        else:
+            return Response({"message": "Project not exists"}, status=400)
+
+    def perform_update(self, serializer):
+        serializer.save(verify_staff=self.request.user)

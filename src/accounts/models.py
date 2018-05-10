@@ -10,7 +10,7 @@ USER_TYPE = (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, full_name=None, password=None, is_active=True, is_staff=False, is_admin=False):
+    def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False):
         if not email:
             raise ValueError('Users must have an email address')
         if not password:
@@ -18,7 +18,6 @@ class UserManager(BaseUserManager):
 
         user_obj = self.model(
             email=self.normalize_email(email),
-            full_name=full_name
         )
 
         user_obj.set_password(password)
@@ -28,19 +27,17 @@ class UserManager(BaseUserManager):
         user_obj.save(using=self._db)
         return user_obj
 
-    def create_staffuser(self, email, full_name=None, password=None):
+    def create_staffuser(self, email, password=None):
         user = self.create_user(
             email,
-            full_name=full_name,
             password=password,
             is_staff=True,
         )
         return user
 
-    def create_superuser(self, email, full_name=None, password=None):
+    def create_superuser(self, email, password=None):
         user = self.create_user(
             email,
-            full_name=full_name,
             password=password,
             is_staff=True,
             is_admin=True,
