@@ -81,7 +81,8 @@
     - password
     - password2
 - response
-    >   HTTP 201 Created
+
+        HTTP 201 Created
         Allow: POST, OPTIONS
         Content-Type: application/json
         Vary: Accept
@@ -102,7 +103,8 @@
     - emial
     - password
 - response
-    >   HTTP 200 OK
+
+        HTTP 200 OK
         Allow: POST, OPTIONS
         Content-Type: application/json
         Vary: Accept
@@ -121,7 +123,8 @@
 - get
     - check/search/ordering all public projects list
     - response
-        >   HTTP 200 OK
+    
+            HTTP 200 OK
             Allow: GET, POST, HEAD, OPTIONS
             Content-Type: application/json
             Vary: Accept
@@ -174,7 +177,8 @@
         - deadline
         - project_file
     - response
-        >   HTTP 201 Created
+    
+            HTTP 201 Created
             Allow: GET, POST, HEAD, OPTIONS
             Content-Type: application/json
             Vary: Accept
@@ -205,7 +209,8 @@
 - /api/projects/3/verify/
 - put
 - response
-    >   HTTP 200 OK
+
+        HTTP 200 OK
         Allow: GET, PUT, PATCH, HEAD, OPTIONS
         Content-Type: application/json
         Vary: Accept
@@ -224,7 +229,8 @@
 - api/projects/(?P<id>\d+)/contributors/
 - get 
     - response
-        >   HTTP 200 OK
+    
+            HTTP 200 OK
             Allow: GET, PUT, HEAD, OPTIONS
             Content-Type: application/json
             Vary: Accept
@@ -266,7 +272,8 @@
 - get
     - get one spare unlabeled item
     - response 
-        >   HTTP 200 OK
+    
+            HTTP 200 OK
             Allow: GET, PUT, PATCH, HEAD, OPTIONS
             Content-Type: application/json
             Vary: Accept
@@ -281,7 +288,8 @@
 - put
     - annotate one item
     - response
-        >   HTTP 200 OK
+    
+            HTTP 200 OK
             Allow: GET, PUT, PATCH, HEAD, OPTIONS
             Content-Type: application/json
             Vary: Accept
