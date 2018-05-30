@@ -17,9 +17,9 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = ProjectSerializer
 
     passed_id = None
-    search_fields = ('project_type', 'founder_email')
+    search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
-    queryset = Project.objects.all()
+    queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
@@ -28,10 +28,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
         serializer.save(founder=self.request.user)
 
 
-class ProjectAPIDetailView(
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    generics.RetrieveAPIView):
+class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = ProjectInlineUserSerializer
     queryset = Project.objects.all()
@@ -47,7 +44,7 @@ class ProjectAPIDetailView(
         return self.destroy(request, *args, **kwargs)
 
 
-class ContributorsListView(mixins.UpdateModelMixin, generics.ListAPIView):
+class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin, ):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = UserInlineSerializer
 
@@ -75,7 +72,7 @@ class ProjectVerifyListView(generics.ListAPIView):
     Permission_classes = [IsStaff]
     serializer_class = ProjectSerializer
 
-    search_fields = ('project_type', 'founder_email')
+    search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
     queryset = Project.objects.filter(verify_status='verifying')
 

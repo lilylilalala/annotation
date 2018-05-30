@@ -15,8 +15,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'founder',
             'contributors',
             'description',
-            'verify_status',
-            'verify_staff',
+            'private',
+            'deadline',
             'project_file',
             'uri',
         ]

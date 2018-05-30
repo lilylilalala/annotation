@@ -14,6 +14,8 @@ User = get_user_model()
 PROJECT_TYPE = (
     ('TextClassification', '文本分类'),
     ('ImageClassification', '图像分类'),
+    ('KeywordRecognition', '关键词识别'),
+    ('EntityRecognition', '实体识别'),
 )
 
 VERIFY_STATUS_TYPE = (
@@ -36,10 +38,12 @@ def upload_project_file_path(instance, filename):
 class Project(models.Model):
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
-    contributors = models.ManyToManyField(User, blank=True, null=True, related_name='contributed_projects')
+    contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
     description = models.TextField(blank=True)
     verify_status = models.CharField(max_length=255, default='verifying', choices=VERIFY_STATUS_TYPE)
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
+    private = models.BooleanField(default=False)
+    deadline = models.DateTimeField(blank=True, null=True)
     project_file = models.FileField(
         upload_to=upload_project_file_path,
         storage=FileSystemStorage(location=settings.MEDIA_ROOT),
@@ -55,3 +59,7 @@ class Project(models.Model):
     @property
     def owner(self):
         return self.founder
+
+    @property
+    def is_private(self):
+        return self.private

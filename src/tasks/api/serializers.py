@@ -1,39 +1,21 @@
 from rest_framework import serializers
 
-from tasks.models import TextClassification, ImageClassification
+from tasks.models import Task
 
 
-class TextClassificationSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     # text_file_path = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = TextClassification
+        model = Task
         fields = [
             'id',
             'project',
-            'text_file_path',
+            'file_path',
             'label',
             'contributor',
         ]
-        read_only_fields = ['id', 'project', 'contributor', 'text_file_path']
+        read_only_fields = ['id', 'project', 'contributor', 'file_path']
 
-    # def get_text_file_path(self, obj):
+    # def get_file_path(self, obj):
     #     return obj.text_file.url
-
-
-class ImageClassificationSerializer(serializers.ModelSerializer):
-    # image_file_path = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = ImageClassification
-        fields = [
-            'id',
-            'project',
-            'image_file_path',
-            'label',
-            'contributor',
-        ]
-        read_only_fields = ['id', 'project', 'contributor', 'image_file_path']
-
-    # def get_image_file_path(self, obj):
-    #     return obj.image_file.url

@@ -4,8 +4,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 USER_TYPE = (
-    ('administrator', '管理员'),
     ('ordinary_user', '普通用户'),
+    ('staff', '员工'),
+    ('administrator', '管理员'),
 )
 
 

@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import TextClassification, ImageClassification
+from .models import Task
 
 
-admin.site.register(TextClassification)
-admin.site.register(ImageClassification)
+admin.site.register(Task)

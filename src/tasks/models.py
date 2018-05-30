@@ -15,12 +15,6 @@ from annotation.utils import get_filename_ext, random_string_generator
 User = get_user_model()
 
 
-TEXT_CLASSIFICATION_LABEL_TYPE = (
-    ('政治', 'political'),
-    ('体育', 'sport'),
-)
-
-
 # def upload_file_path(instance, filename):
 #     name, ext = get_filename_ext(filename)
 #     new_filename = random_string_generator()
@@ -31,36 +25,14 @@ TEXT_CLASSIFICATION_LABEL_TYPE = (
 #     )
 
 
-class TextClassification(models.Model):
+class Task(models.Model):
     project = models.ForeignKey(Project)
     # text_file = models.FileField(
     #     upload_to=upload_file_path,
     #     storage=FileSystemStorage(location=settings.MEDIA_ROOT),
     # )
-    text_file_path = models.CharField(max_length=255)
-    label = models.CharField(max_length=64, blank=True, choices=TEXT_CLASSIFICATION_LABEL_TYPE)
-    contributor = models.ForeignKey(User, blank=True, null=True, default=None)
-    updated = models.DateTimeField(auto_now=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return str(self.project) + '_' + str(self.id)
-
-
-IMAGE_CLASSIFICATION_LABEL_TYPE = (
-    ('猫', 'cat'),
-    ('狗', 'dog'),
-)
-
-
-class ImageClassification(models.Model):
-    project = models.ForeignKey(Project)
-    # image_file = models.ImageField(
-    #     upload_to=upload_file_path,
-    #     storage=FileSystemStorage(location=settings.MEDIA_ROOT),
-    # )
-    image_file_path = models.CharField(max_length=255)
-    label = models.CharField(max_length=64, blank=True, choices=IMAGE_CLASSIFICATION_LABEL_TYPE)
+    file_path = models.CharField(max_length=255)
+    label = models.CharField(max_length=255, blank=True)
     contributor = models.ForeignKey(User, blank=True, null=True, default=None)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -83,16 +55,10 @@ def project_created_receiver(sender, instance, created, *args, **kwargs):
         finally_project_file_path = os.path.join(project_file_dir, inner_dir_name)
         file_name_list = os.listdir(finally_project_file_path)
         for file_name in file_name_list:
-            if instance.project_type == 'TextClassification':
-                TextClassification.objects.create(
-                    project=instance,
-                    text_file_path=os.path.join(finally_project_file_path, file_name),
-                )
-            elif instance.project_type == 'ImageClassification':
-                ImageClassification.objects.create(
-                    project=instance,
-                    image_file_path=os.path.join(finally_project_file_path, file_name),
-                )
+            Task.objects.create(
+                project=instance,
+                file_path=os.path.join(finally_project_file_path, file_name),
+            )
 
 
 post_save.connect(project_created_receiver, sender=Project)
