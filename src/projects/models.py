@@ -44,6 +44,7 @@ class Project(models.Model):
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
     private = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
+    project_target = models.CharField(max_length=255, blank=True)
     project_file = models.FileField(
         upload_to=upload_project_file_path,
         storage=FileSystemStorage(location=settings.MEDIA_ROOT),

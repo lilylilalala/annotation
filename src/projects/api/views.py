@@ -4,7 +4,12 @@ from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions
 
 from projects.models import Project
-from .serializers import ProjectSerializer, ProjectInlineUserSerializer, ProjectInlineVerifySerializer
+from .serializers import (
+    ProjectSerializer,
+    ProjectInlineUserSerializer,
+    ProjectInlineVerifySerializer,
+    ProjectTargetSerializer,
+)
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 from accounts.api.users.serializers import UserInlineSerializer
 
@@ -109,3 +114,16 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
 
     def perform_update(self, serializer):
         serializer.save(verify_staff=self.request.user)
+
+
+class ProjectTargetDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = ProjectTargetSerializer
+    queryset = Project.objects.all()
+    lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)

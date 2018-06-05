@@ -301,3 +301,21 @@
                 "label": "oh",
                 "contributor": 1
             }
+            
+5. Project target management
+- api/projects/(?P<id>\d+)/target
+- get
+    -get target of a specific project
+    -response
+        
+            HTTP 200 OK
+            Allow: GET, PUT, PATCH, HEAD, OPTIONS
+            Content-Type: application/json
+            Vary: Accept
+            
+            {
+                "project_target": "dog, cat, cattle"
+            }
+-put
+    - update target of a specific project
+ 
