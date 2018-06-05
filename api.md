@@ -316,6 +316,6 @@
             {
                 "project_target": "dog, cat, cattle"
             }
--put
+- put
     - update target of a specific project
  
