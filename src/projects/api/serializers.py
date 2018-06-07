@@ -21,6 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'private',
             'deadline',
             'is_completed',
+            'project_target',
             'target',
             'project_file',
             'uri',
