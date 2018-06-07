@@ -6,6 +6,7 @@ from projects.models import Project
 
 class ProjectSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
+    is_completed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -17,6 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'description',
             'private',
             'deadline',
+            'is_completed',
             'project_target',
             'project_file',
             'uri',
@@ -26,6 +28,9 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_uri(self, obj):
         request = self.context.get('request')
         return api_reverse('api-projects:detail', kwargs={'id': obj.id}, request=request)
+
+    def get_is_completed(self, obj):
+        return obj.is_completed
 
 
 class ProjectInlineUserSerializer(ProjectSerializer):
@@ -37,6 +42,8 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'founder',
             'contributors',
             'description',
+            'deadline',
+            'is_completed',
             'uri',
         ]
         read_only_fields = ['project_type', 'founder']
@@ -50,6 +57,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'project_type',
             'founder',
             'description',
+            'deadline',
             'verify_status',
             'project_file',
             'uri',

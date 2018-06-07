@@ -64,3 +64,9 @@ class Project(models.Model):
     @property
     def is_private(self):
         return self.private
+
+    @property
+    def is_completed(self):
+        if self.task_set.all().filter(label=''):
+            return False
+        return True

@@ -262,7 +262,7 @@
                     }
                 ]
             }
-                            
+                                
 - put
     - participate/quit project
     
@@ -318,4 +318,43 @@
             }
 - put
     - update target of a specific project
- 
+    - separate with ', ', eg: dog, hawk, snake, 
+    
+6. Update/Delete information of the founder's project
+
+- /api/projects/(?P<id>\d+)/
+- put
+    - update project information
+        - contributors
+        - description
+        - deadline
+- delete
+    - delete project
+    
+    
+7. Get project result
+- api/projects/(?P<id>\d+)/result
+- get
+    -get labeled task list of specific project
+    -response
+        
+            HTTP 200 OK
+            Allow: GET, HEAD, OPTIONS
+            Content-Type: application/json
+            Vary: Accept
+            
+            {
+                "count": 1,
+                "next": null,
+                "previous": null,
+                "results": [
+                    {
+                        "id": 1,
+                        "project": 1,
+                        "file_path": "/Users/eli/Projects/annotation/media_root/tw57azuamg/a/b.txt",
+                        "label": "oh",
+                        "contributor": 1,
+                        "updated": "2018-05-30T16:09:40.953365"
+                    }
+                ]
+            }

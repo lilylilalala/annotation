@@ -10,6 +10,7 @@ from .serializers import (
     ProjectInlineVerifySerializer,
     ProjectTargetSerializer,
 )
+from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 from accounts.api.users.serializers import UserInlineSerializer
 
@@ -127,3 +128,16 @@ class ProjectTargetDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
 
     def patch(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+
+class ProjectResultView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = TaskSerializer
+
+    search_fields = ('contributor', 'label')
+    ordering_fields = ('contributor', 'updated')
+
+    def get_queryset(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        return project.task_set.all().exclude(label='')

@@ -14,6 +14,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'file_path',
             'label',
             'contributor',
+            'updated',
         ]
         read_only_fields = ['id', 'project', 'contributor', 'file_path']
 
