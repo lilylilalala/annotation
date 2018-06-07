@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.storage import FileSystemStorage
 
 from annotation.utils import get_filename_ext, random_string_generator
+from targets.models import Target
 
 
 User = get_user_model()
@@ -44,7 +45,7 @@ class Project(models.Model):
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
     private = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
-    project_target = models.CharField(max_length=255, blank=True)
+    project_target = models.ForeignKey(Target)
     project_file = models.FileField(
         upload_to=upload_project_file_path,
         storage=FileSystemStorage(location=settings.MEDIA_ROOT),

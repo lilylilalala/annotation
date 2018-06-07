@@ -2,11 +2,13 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse as api_reverse
 
 from projects.models import Project
+from targets.api.serializers import TargetSerializer
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
     is_completed = serializers.SerializerMethodField(read_only=True)
+    target = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -19,7 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'private',
             'deadline',
             'is_completed',
-            'project_target',
+            'target',
             'project_file',
             'uri',
         ]
@@ -32,6 +34,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_is_completed(self, obj):
         return obj.is_completed
 
+    def get_target(self, obj):
+        target = obj.project_target
+        return TargetSerializer(target).data
+
 
 class ProjectInlineUserSerializer(ProjectSerializer):
     class Meta:
@@ -43,6 +49,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'contributors',
             'description',
             'deadline',
+            'project_target',
             'is_completed',
             'uri',
         ]

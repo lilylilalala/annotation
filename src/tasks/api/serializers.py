@@ -5,18 +5,26 @@ from tasks.models import Task
 
 class TaskSerializer(serializers.ModelSerializer):
     # text_file_path = serializers.SerializerMethodField(read_only=True)
+    text_content = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Task
         fields = [
             'id',
             'project',
-            'file_path',
+            'text_content',
             'label',
             'contributor',
             'updated',
         ]
-        read_only_fields = ['id', 'project', 'contributor', 'file_path']
+        read_only_fields = ['id', 'project', 'contributor']
 
     # def get_file_path(self, obj):
     #     return obj.text_file.url
+
+    def get_text_content(self, obj):
+        path = obj.file_path
+        with open(path, 'r') as file:
+            text_content = file.read().strip()
+        return text_content
+

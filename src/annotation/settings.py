@@ -29,7 +29,7 @@ SECRET_KEY = 'jm#x%htdd#dmho_8%pxlv*+hkrkg--0&xx-r(3w(+!_+$yp1(1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'accounts',
     'projects',
     'tasks',
+    'targets',
 ]
 
 MIDDLEWARE = [
