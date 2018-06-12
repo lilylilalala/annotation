@@ -1,12 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import generics
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 
-from .serializers import UserRegisterSerializer
 from .permissions import AnonPermissionOnly
+from .serializers import UserRegisterSerializer, UsernameOrEmailCheckSerializer
+from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -49,3 +49,22 @@ class LoginAPIView(APIView):
                 response = jwt_response_payload_handler(token, user, request=request)
                 return Response(response)
         return Response({"detail": "Invalid credentials"}, status=401)
+
+
+class PhoneNumberOrEmailCheck(APIView):
+    @validate_serializer(PhoneNumberOrEmailCheckSerializer)
+    def post(self, request):
+        """
+        check phone number or email is duplicate
+        """
+        data = request.data
+        # True means already exist.
+        result = {
+            "phone_number": False,
+            "email": False
+        }
+        if data.get("phone_number"):
+            result["phone_number"] = User.objects.filter(phone_number=data["phone_number"]).exists()
+        if data.get("email"):
+            result["email"] = User.objects.filter(email=data["email"].lower()).exists()
+        return self.success(result)

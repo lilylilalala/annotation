@@ -79,3 +79,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
         return token
+
+
+class PhoneNumberOrEmailCheckSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)

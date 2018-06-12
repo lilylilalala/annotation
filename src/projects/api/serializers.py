@@ -51,6 +51,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'description',
             'deadline',
             'project_target',
+            'target',
             'is_completed',
             'uri',
         ]
