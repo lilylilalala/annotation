@@ -27,4 +27,4 @@ class TargetSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def get_type_name(self, obj):
-        return TARGET_TYPE[obj.type]
+        return TARGET_TYPE[str(obj.type)]
