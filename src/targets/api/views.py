@@ -14,8 +14,8 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = TargetSerializer
 
     passed_id = None
-    search_fields = ('name', 'type')
-    ordering_fields = ('name', 'type')
+    search_fields = ('name', 'type', )
+    ordering_fields = ('updated', 'type')
 
     def get_queryset(self, *args, **kwargs):
         target_type = self.request.GET.get("type", None)
