@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 
 from .permissions import AnonPermissionOnly
-from .serializers import UserRegisterSerializer, UsernameOrEmailCheckSerializer
+from .serializers import UserRegisterSerializer, PhoneNumberOrEmailCheckSerializer
 from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 
 

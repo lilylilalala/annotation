@@ -3,20 +3,22 @@ from rest_framework import generics, mixins, permissions
 
 from targets.models import Target
 from .serializers import TargetSerializer
-from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
+from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff, IsOwner
 
 
 User = get_user_model()
 
 
 class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = TargetSerializer
 
     passed_id = None
     search_fields = ('name', 'type')
     ordering_fields = ('name', 'type')
-    queryset = Target.objects.all()
+
+    def get_queryset(self):
+        return Target.objects.filter(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
