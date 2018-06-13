@@ -59,6 +59,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
         fields = [
             'id',
             'project_type',
+            'project_type_name',
             'founder',
             'contributors',
             'description',
@@ -77,6 +78,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
         fields = [
             'id',
             'project_type',
+            'project_type_name',
             'founder',
             'description',
             'deadline',
