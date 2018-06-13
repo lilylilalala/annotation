@@ -19,7 +19,9 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         target_type = self.request.GET.get("type", None)
-        return Target.objects.filter(user=self.request.user, type=target_type)
+        if target_type:
+            return Target.objects.filter(user=self.request.user, type=target_type)
+        return Target.objects.filter(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
