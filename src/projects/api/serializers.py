@@ -23,6 +23,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = [
             'id',
+            'name',
             'project_type',
             'project_type_name',
             'founder',
@@ -58,6 +59,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
         model = Project
         fields = [
             'id',
+            'name',
             'project_type',
             'project_type_name',
             'founder',
@@ -77,6 +79,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
         model = Project
         fields = [
             'id',
+            'name',
             'project_type',
             'project_type_name',
             'founder',
@@ -86,7 +89,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'project_file',
             'uri',
         ]
-        read_only_fields = ['project_type', 'founder', 'description', 'project_file']
+        read_only_fields = ['name', 'project_type', 'founder', 'description', 'project_file']
 
 
 class ProjectTargetSerializer(ProjectSerializer):
@@ -94,5 +97,6 @@ class ProjectTargetSerializer(ProjectSerializer):
         model = Project
         fields = [
             'project_target',
+            'target',
         ]
     read_only_fields = ['project_target']

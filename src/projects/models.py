@@ -37,6 +37,7 @@ def upload_project_file_path(instance, filename):
 
 
 class Project(models.Model):
+    name = models.CharField(max_length=128, null=True)
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
@@ -71,3 +72,10 @@ class Project(models.Model):
         if self.task_set.all().filter(label=''):
             return False
         return True
+
+    @property
+    def progress(self):
+        num_of_tasks = self.task_set.count()
+        completed = self.task_set.all().exclude(label='').count()
+        return '%d%%' % (completed/num_of_tasks*100)
+
