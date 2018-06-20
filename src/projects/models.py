@@ -37,7 +37,7 @@ def upload_project_file_path(instance, filename):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=128, null=True)
+    name = models.CharField(max_length=128, default='unnamed project')
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
