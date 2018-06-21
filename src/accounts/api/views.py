@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import generics
+from rest_framework.views import APIView as OriginAPIView
 from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 
@@ -26,7 +27,7 @@ class RegisterAPIView(generics.CreateAPIView):
         return {"request": self.request}
 
 
-class LoginAPIView(APIView):
+class LoginAPIView(OriginAPIView):
     permission_classes = [AnonPermissionOnly]
 
     def post(self, request, *args, **kwargs):
@@ -58,7 +59,6 @@ class PhoneNumberOrEmailCheck(APIView):
         check phone number or email is duplicate
         """
         data = request.data
-        # True means already exist.
         result = {
             "phone_number": False,
             "email": False
