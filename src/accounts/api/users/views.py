@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
 
 from projects.models import Project
@@ -54,3 +54,18 @@ class UserContributedProjectAPIView(UserFoundedProjectAPIView):
             return Project.objects.none()
         user = User.objects.get(id=user_id)
         return user.contributed_projects.all()
+
+
+class UserOwnContributedProjectAPIView(ProjectAPIView):
+    serializer_class = ProjectInlineUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        if user_id is None:
+            return Project.objects.none()
+        user = User.objects.get(id=user_id)
+        return user.contributed_projects.all()
+
+    def post(self, request, *args, **kwargs):
+        return Response({"detail": "Not allowed here"}, status=400)
