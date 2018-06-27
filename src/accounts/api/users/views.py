@@ -17,6 +17,9 @@ class OrdinaryUserAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = User.objects.filter(user_type='ordinary_user')
 
+    search_fields = ('id', 'email', 'full_name')
+    ordering_fields = ('id', 'email', 'full_name')
+
 
 class UserDetailAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     permission_classes = [IsOwnerOrReadOnly]

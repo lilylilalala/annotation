@@ -17,6 +17,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'email',
+            'full_name',
             'uri',
             'project',
         ]
