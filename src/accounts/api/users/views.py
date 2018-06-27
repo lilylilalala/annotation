@@ -12,6 +12,12 @@ from accounts.api.permissions import IsOwnerOrReadOnly
 User = get_user_model()
 
 
+class OrdinaryUserAPIView(generics.ListAPIView):
+    serializer_class = UserDetailSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = User.objects.filter(user_type='ordinary_user')
+
+
 class UserDetailAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     permission_classes = [IsOwnerOrReadOnly]
     queryset = User.objects.filter(is_active=True)
