@@ -11,9 +11,11 @@ USER_TYPE = (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False):
+    def create_user(self, email, full_name, password=None, is_active=True, is_staff=False, is_admin=False):
         if not email:
             raise ValueError('Users must have an email address')
+        if not full_name:
+            raise ValueError('Users must have a full name')
         if not password:
             raise ValueError('Users must have a password')
 
@@ -21,6 +23,7 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
         )
 
+        user_obj.full_name = full_name
         user_obj.set_password(password)
         user_obj.staff = is_staff
         user_obj.admin = is_admin
@@ -28,17 +31,19 @@ class UserManager(BaseUserManager):
         user_obj.save(using=self._db)
         return user_obj
 
-    def create_staffuser(self, email, password=None):
+    def create_staffuser(self, email, full_name, password=None):
         user = self.create_user(
             email,
+            full_name,
             password=password,
             is_staff=True,
         )
         return user
 
-    def create_superuser(self, email, password=None):
+    def create_superuser(self, email, full_name, password=None):
         user = self.create_user(
             email,
+            full_name,
             password=password,
             is_staff=True,
             is_admin=True,
@@ -48,7 +53,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True)
-    full_name = models.CharField(max_length=255, blank=True)
+    full_name = models.CharField(max_length=255)
     phone_regex = RegexValidator(regex=r'^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$',
                                  message="Invalid phone number")
     phone_number = models.CharField(validators=[phone_regex], max_length=11, blank=True)
@@ -67,9 +72,7 @@ class User(AbstractBaseUser):
         return self.email
 
     def get_full_name(self):
-        if self.full_name:
-            return self.full_name
-        return self.email
+        return self.full_name
 
     def get_short_name(self):
         return self.email
