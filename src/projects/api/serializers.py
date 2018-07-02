@@ -16,7 +16,9 @@ PROJECT_TYPE = {
 class ProjectSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
     project_type_name = serializers.SerializerMethodField(read_only=True)
+    quantity = serializers.SerializerMethodField(read_only=True)
     is_completed = serializers.SerializerMethodField(read_only=True)
+    progress = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -24,20 +26,24 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
+            'tag',
             'project_type',
             'project_type_name',
             'founder',
             'contributors',
             'description',
+            'verify_status',
             'private',
             'deadline',
+            'quantity',
             'is_completed',
+            'progress',
             'project_target',
             'target',
             'project_file',
             'uri',
         ]
-        read_only_fields = ['founder']
+        read_only_fields = ['founder', 'verify_status']
 
     def get_uri(self, obj):
         request = self.context.get('request')
@@ -46,8 +52,14 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_project_type_name(self, obj):
         return PROJECT_TYPE[obj.project_type]
 
+    def get_quantity(self, obj):
+        return obj.quantity
+
     def get_is_completed(self, obj):
         return obj.is_completed
+
+    def get_progress(self,obj):
+        return obj.progress
 
     def get_target(self, obj):
         target = obj.project_target
@@ -60,18 +72,24 @@ class ProjectInlineUserSerializer(ProjectSerializer):
         fields = [
             'id',
             'name',
+            'tag',
             'project_type',
             'project_type_name',
             'founder',
             'contributors',
             'description',
+            'verify_status',
+            'private',
             'deadline',
+            'quantity',
+            'is_completed',
+            'progress',
             'project_target',
             'target',
-            'is_completed',
+            'project_file',
             'uri',
         ]
-        read_only_fields = ['project_type', 'founder']
+        read_only_fields = ['founder', 'verify_status']
 
 
 class ProjectInlineVerifySerializer(ProjectSerializer):

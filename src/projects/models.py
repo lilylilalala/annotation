@@ -38,6 +38,7 @@ def upload_project_file_path(instance, filename):
 
 class Project(models.Model):
     name = models.CharField(max_length=128, default='unnamed project')
+    tag = models.CharField(max_length=255, blank=True, null=True)
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
@@ -66,6 +67,10 @@ class Project(models.Model):
     @property
     def is_private(self):
         return self.private
+
+    @property
+    def quantity(self):
+        return self.task_set.count()
 
     @property
     def is_completed(self):
