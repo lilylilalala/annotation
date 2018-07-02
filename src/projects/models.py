@@ -82,5 +82,8 @@ class Project(models.Model):
     def progress(self):
         num_of_tasks = self.task_set.count()
         completed = self.task_set.all().exclude(label='').count()
-        return '%d%%' % (completed/num_of_tasks*100)
+        try:
+            return '%d%%' % (completed/num_of_tasks*100)
+        except:
+            return '0%'
 
