@@ -69,7 +69,7 @@ class User(AbstractBaseUser):
     admin = models.BooleanField(default=False)
     user_type = models.CharField(max_length=255, choices=USER_TYPE, default='ordinary_user')
     timestamp = models.DateTimeField(auto_now_add=True)
-    notes = models.CharField(max_length=500, null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
