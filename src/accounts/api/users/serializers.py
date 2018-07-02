@@ -55,7 +55,10 @@ class UserDetailUpdateSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'full_name',
+            'gender',
+            'birthday',
             'phone_number',
+            'notes',
             'uri',
         ]
 

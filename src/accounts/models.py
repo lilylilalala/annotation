@@ -9,6 +9,11 @@ USER_TYPE = (
     ('administrator', '管理员'),
 )
 
+GENDER_TYPE = (
+    ('male', '男'),
+    ('female', '女'),
+)
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, is_active=True, is_staff=False, is_admin=False):
@@ -54,6 +59,8 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True)
     full_name = models.CharField(max_length=255, blank=False)
+    gender = models.CharField(max_length=6, choices=GENDER_TYPE, default='male')
+    birthday = models.DateField(null=True, blank=True)
     phone_regex = RegexValidator(regex=r'^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$',
                                  message="Invalid phone number")
     phone_number = models.CharField(validators=[phone_regex], max_length=11, blank=True)
@@ -62,6 +69,7 @@ class User(AbstractBaseUser):
     admin = models.BooleanField(default=False)
     user_type = models.CharField(max_length=255, choices=USER_TYPE, default='ordinary_user')
     timestamp = models.DateTimeField(auto_now_add=True)
+    notes = models.CharField(max_length=500, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
