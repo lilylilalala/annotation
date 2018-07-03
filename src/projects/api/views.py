@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, mixins, permissions, status
 
 from projects.models import Project
 from .serializers import (
@@ -27,6 +27,19 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
+
+    def create(self, request, *args, **kwargs):
+        try:
+            contributors = request.data["contributors"].split(",")
+            request.data["contributors"] = contributors
+        except:
+            pass
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        print(request.data)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
