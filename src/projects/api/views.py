@@ -29,6 +29,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
     def create(self, request, *args, **kwargs):
+        print(request.data)
         try:
             contributors = request.data["contributors"].split(",")
             request.data["contributors"] = contributors
