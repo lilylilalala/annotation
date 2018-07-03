@@ -29,14 +29,14 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
     def create(self, request, *args, **kwargs):
-        try:
-            contributors = request.data["contributors"].split(",")
-            request.data["contributors"] = contributors
-        except:
-            pass
+        print(request.data)
+        mutable = request.POST._mutable
+        request.POST._mutable = True
+        contributors = request.data["contributors"][0].split(",")
+        request.data["contributors"] = contributors
+        request.POST._mutable = mutable
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print(request.data)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
