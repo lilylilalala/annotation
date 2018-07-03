@@ -33,7 +33,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
         if 'contributors' in request.data:
             contributors = request.data["contributors"][0].split(",")
             request.data['contributors'] = contributors
-        print(request.data['file'], type(request.data['file']))
+        print(request.data['project_file'], type(request.data['project_file']))
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         print(request.data)
