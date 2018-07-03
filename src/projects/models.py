@@ -20,6 +20,7 @@ PROJECT_TYPE = (
 )
 
 VERIFY_STATUS_TYPE = (
+    ('unreleased', '未发布'),
     ('verifying', '审核中'),
     ('verification succeed', '审核通过'),
     ('verification failed', '审核未通过'),
@@ -43,7 +44,7 @@ class Project(models.Model):
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
     description = models.TextField(blank=True)
-    verify_status = models.CharField(max_length=255, default='verifying', choices=VERIFY_STATUS_TYPE)
+    verify_status = models.CharField(max_length=255, default='unreleased', choices=VERIFY_STATUS_TYPE)
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
     private = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
@@ -71,6 +72,16 @@ class Project(models.Model):
     @property
     def quantity(self):
         return self.task_set.count()
+
+    @property
+    def project_status(self):
+        if self.verify_status == 'verification succeed':
+            if self.task_set.all().filter(label=''):
+                return 'in progress'
+            else:
+                return 'completed'
+        else:
+            return self.verify_status
 
     @property
     def is_completed(self):

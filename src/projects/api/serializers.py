@@ -17,6 +17,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
     project_type_name = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.SerializerMethodField(read_only=True)
+    project_status = serializers.SerializerMethodField(read_only=True)
     is_completed = serializers.SerializerMethodField(read_only=True)
     progress = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
@@ -36,6 +37,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'private',
             'deadline',
             'quantity',
+            'project_status',
             'is_completed',
             'progress',
             'project_target',
@@ -55,10 +57,13 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_quantity(self, obj):
         return obj.quantity
 
+    def get_project_status(self, obj):
+        return obj.project_status
+
     def get_is_completed(self, obj):
         return obj.is_completed
 
-    def get_progress(self,obj):
+    def get_progress(self, obj):
         return obj.progress
 
     def get_target(self, obj):
@@ -82,6 +87,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'private',
             'deadline',
             'quantity',
+            'project_status',
             'is_completed',
             'progress',
             'project_target',
@@ -90,6 +96,19 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'uri',
         ]
         read_only_fields = ['founder', 'verify_status']
+
+
+class ProjectReleaseSerializer(ProjectSerializer):
+    class Meta:
+        model = Project
+        fields = [
+            'id',
+            'name',
+            'founder',
+            'description',
+            'verify_status',
+        ]
+        read_only_fields = ['name', 'founder', 'description', 'verify_status']
 
 
 class ProjectInlineVerifySerializer(ProjectSerializer):

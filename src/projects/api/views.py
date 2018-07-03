@@ -9,6 +9,7 @@ from .serializers import (
     ProjectInlineUserSerializer,
     ProjectInlineVerifySerializer,
     ProjectTargetSerializer,
+    ProjectReleaseSerializer,
 )
 from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
@@ -40,14 +41,45 @@ class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
     queryset = Project.objects.all()
     lookup_field = 'id'
 
+    def validate_status(self):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        if project.verify_status in ['unreleased', 'verification failed']:
+            return True
+
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        if self.validate_status():
+            return self.update(request, *args, **kwargs)
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
 
     def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        if self.validate_status():
+            return self.update(request, *args, **kwargs)
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
 
     def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+        if self.validate_status():
+            return self.destroy(request, *args, **kwargs)
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
+
+
+class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = ProjectReleaseSerializer
+    queryset = Project.objects.all()
+    lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        if project.verify_status in ['unreleased', 'verification failed']:
+            project.verify_status = 'verifying'
+            project.save()
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
 
 
 class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin, ):
