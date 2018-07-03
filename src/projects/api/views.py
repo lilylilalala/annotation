@@ -31,7 +31,8 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     def create(self, request, *args, **kwargs):
         print(request.data)
         if 'contributors' in dict(request.data):
-            request.data['contributors'] = request.data["contributors"][0].split(",")
+            contributors = request.data["contributors"][0].split(",")
+            request.data['contributors'] = contributors
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         print(request.data)
