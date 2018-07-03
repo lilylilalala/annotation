@@ -29,6 +29,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
