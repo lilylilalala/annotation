@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, mixins, permissions, status
 
 from projects.models import Project
 from .serializers import (
@@ -9,6 +9,7 @@ from .serializers import (
     ProjectInlineUserSerializer,
     ProjectInlineVerifySerializer,
     ProjectTargetSerializer,
+    ProjectReleaseSerializer,
 )
 from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
@@ -27,6 +28,19 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView ):
     ordering_fields = ('project_type', 'timestamp')
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
+    def create(self, request, *args, **kwargs):
+        try:
+            contributors = request.data["contributors"].split(",")
+            request.data["contributors"] = contributors
+        except:
+            pass
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        print(request.data)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -40,14 +54,45 @@ class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
     queryset = Project.objects.all()
     lookup_field = 'id'
 
+    def validate_status(self):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        if project.verify_status in ['unreleased', 'verification failed']:
+            return True
+
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        if self.validate_status():
+            return self.update(request, *args, **kwargs)
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
 
     def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        if self.validate_status():
+            return self.update(request, *args, **kwargs)
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
 
     def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+        if self.validate_status():
+            return self.destroy(request, *args, **kwargs)
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
+
+
+class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = ProjectReleaseSerializer
+    queryset = Project.objects.all()
+    lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        if project.verify_status in ['unreleased', 'verification failed']:
+            project.verify_status = 'verifying'
+            project.save()
+        else:
+            return Response({"detail": "Not allowed here"}, status=400)
 
 
 class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin, ):

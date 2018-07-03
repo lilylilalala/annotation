@@ -1,10 +1,10 @@
-from django.contrib.auth import get_user_model
-from rest_framework import generics, mixins, permissions
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
 
 from projects.models import Project
 from projects.api.views import ProjectAPIView
-from .serializers import UserDetailSerializer, UserDetailUpdateSerializer
+from .serializers import UserDetailSerializer, UserDetailUpdateSerializer, UserPasswordUpdateSerializer
 from projects.api.serializers import ProjectInlineUserSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly
 
@@ -78,3 +78,28 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
 
     def post(self, request, *args, **kwargs):
         return Response({"detail": "Not allowed here"}, status=400)
+
+
+class UserUpdateInfoAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    serializer_class = UserDetailUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        user_id = self.request.user.id
+        if user_id is None:
+            return User.objects.none()
+        return User.objects.get(id=user_id)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+class UserPasswordAPIView(generics.CreateAPIView):
+    serializer_class = UserPasswordUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_context(self, *args, **kwargs):
+        return {"request": self.request}
