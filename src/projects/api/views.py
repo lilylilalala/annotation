@@ -19,7 +19,7 @@ from accounts.api.users.serializers import UserInlineSerializer
 User = get_user_model()
 
 
-class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView ):
+class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ProjectSerializer
 
@@ -30,11 +30,8 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView ):
 
     def create(self, request, *args, **kwargs):
         print(request.data)
-        try:
-            contributors = request.data["contributors"].split(",")
-            request.data["contributors"] = contributors
-        except:
-            pass
+        if 'contributors' in dict(request.data):
+            request.data['contributors'] = request.data["contributors"].split(",")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         print(request.data)
