@@ -18,7 +18,7 @@ from accounts.api.users.serializers import UserInlineSerializer
 User = get_user_model()
 
 
-class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
+class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView ):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ProjectSerializer
 
