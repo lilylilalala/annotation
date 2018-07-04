@@ -28,20 +28,14 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     ordering_fields = ('project_type', 'timestamp')
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
-    def create(self, request, *args, **kwargs):
-        try:
-            contributors = request.data["contributors"].split(",")
-            request.data["contributors"] = contributors
-        except:
-            pass
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        print(request.data)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
     def post(self, request, *args, **kwargs):
+        print(request.data)
+        mutable = request.POST._mutable
+        request.POST._mutable = True
+        print(request.data.get('contributors'))
+        request.data['contributors'] = '1'
+        request.POST._mutable = mutable
+        print(request.data)
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
