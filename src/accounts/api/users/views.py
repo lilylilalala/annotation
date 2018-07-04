@@ -77,7 +77,11 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
         if user_id is None:
             return Project.objects.none()
         user = User.objects.get(id=user_id)
-        return user.contributed_projects.all()
+        projects = user.contributed_projects.all()
+        project_type = self.request.GET.get("type", None)
+        if project_type:
+            return projects.filter(project_type=project_type)
+        return projects
 
     def post(self, request, *args, **kwargs):
         return Response({"detail": "Not allowed here"}, status=400)
