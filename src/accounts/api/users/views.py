@@ -69,6 +69,9 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    search_fields = ('name', 'project_type')
+    ordering_fields = ('name', 'project_type', 'timestamp')
+
     def get_queryset(self, *args, **kwargs):
         user_id = self.request.user.id
         if user_id is None:
