@@ -102,7 +102,7 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
         if user_id is None:
             return Project.objects.none()
         user = User.objects.get(id=user_id)
-        projects = user.contributed_projects.all()
+        projects = user.contributed_projects.filter(verify_status='verification succeed')
         project_status = self.request.GET.get("project_status", None)
         if project_status:
             project_id = [x.id for x in projects if x.project_status == project_status]
