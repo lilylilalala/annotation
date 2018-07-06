@@ -62,6 +62,7 @@ class UserOwnFoundedProjectAPIView(ProjectAPIView):
 
     search_fields = ('name', 'project_type')
     ordering_fields = ('name', 'project_type', 'timestamp')
+    filter_fields = ('project_type',)
 
     def get_queryset(self, *args, **kwargs):
         user_id = self.request.user.id
@@ -69,9 +70,10 @@ class UserOwnFoundedProjectAPIView(ProjectAPIView):
             return Project.objects.none()
         user = User.objects.get(id=user_id)
         projects = user.founded_projects.all()
-        project_type = self.request.GET.get("type", None)
-        if project_type:
-            return projects.filter(project_type=project_type)
+        project_status = self.request.GET.get("project_status", None)
+        if project_status:
+            project_id = [x.id for x in projects if x.project_status == project_status]
+            return projects.filter(pk__in=project_id)
         return projects
 
     def post(self, request, *args, **kwargs):
@@ -93,6 +95,7 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
 
     search_fields = ('name', 'project_type')
     ordering_fields = ('name', 'project_type', 'timestamp')
+    filter_fields = ('project_type',)
 
     def get_queryset(self, *args, **kwargs):
         user_id = self.request.user.id
@@ -100,9 +103,10 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
             return Project.objects.none()
         user = User.objects.get(id=user_id)
         projects = user.contributed_projects.all()
-        project_type = self.request.GET.get("type", None)
-        if project_type:
-            return projects.filter(project_type=project_type)
+        project_status = self.request.GET.get("project_status", None)
+        if project_status:
+            project_id = [x.id for x in projects if x.project_status == project_status]
+            return projects.filter(pk__in=project_id)
         return projects
 
     def post(self, request, *args, **kwargs):
