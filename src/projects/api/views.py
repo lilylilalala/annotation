@@ -26,7 +26,14 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     passed_id = None
     search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
-    queryset = Project.objects.filter(private=False, verify_status='verification succeed')
+
+    def get_queryset(self, *args, **kwargs):
+        project_id = [x.id for x in Project.objects.filter(private=False) if x.project_status == 'in progress']
+        projects = Project.objects.filter(pk__in=project_id)
+        project_type = self.request.GET.get("type", None)
+        if project_type:
+            return projects.filter(project_type=project_type)
+        return projects
 
     def post(self, request, *args, **kwargs):
         print(request.data)
