@@ -56,6 +56,28 @@ class UserFoundedProjectAPIView(ProjectAPIView):
         return Response({"detail": "Not allowed here"}, status=400)
 
 
+class UserOwnFoundedProjectAPIView(ProjectAPIView):
+    serializer_class = ProjectInlineUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    search_fields = ('name', 'project_type')
+    ordering_fields = ('name', 'project_type', 'timestamp')
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        if user_id is None:
+            return Project.objects.none()
+        user = User.objects.get(id=user_id)
+        projects = user.founded_projects.all()
+        project_type = self.request.GET.get("type", None)
+        if project_type:
+            return projects.filter(project_type=project_type)
+        return projects
+
+    def post(self, request, *args, **kwargs):
+        return Response({"detail": "Not allowed here"}, status=400)
+
+
 class UserContributedProjectAPIView(UserFoundedProjectAPIView):
     def get_queryset(self, *args, **kwargs):
         user_id = self.kwargs.get("id", None)
