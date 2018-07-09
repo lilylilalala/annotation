@@ -21,6 +21,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField(read_only=True)
     progress = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
+    is_in = serializers.SerializerMethodField(read_only=True)
+    my_quantity = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -43,6 +45,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'project_target',
             'target',
             'project_file',
+            'is_in',
+            'my_quantity',
             'uri',
         ]
         read_only_fields = ['founder', 'verify_status']
@@ -70,6 +74,16 @@ class ProjectSerializer(serializers.ModelSerializer):
         target = obj.project_target
         return TargetSerializer(target).data
 
+    def get_is_in(self, obj):
+        request = self.context.get('request')
+        user_id = request.user.id
+        return obj.contributors.filter(id=user_id).exists()
+
+    def get_my_quantity(self, obj):
+        request = self.context.get('request')
+        user_id = request.user.id
+        return obj.task_set.filter(contributor=user_id).count()
+
 
 class ProjectInlineUserSerializer(ProjectSerializer):
     class Meta:
@@ -93,6 +107,8 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'project_target',
             'target',
             'project_file',
+            'is_in',
+            'my_quantity',
             'uri',
         ]
         read_only_fields = ['founder', 'verify_status']
