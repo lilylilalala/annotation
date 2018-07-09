@@ -115,9 +115,10 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin, ):
         user = request.user
         if user in project.contributors.all():
             project.contributors.remove(user)
+            return Response({"message": "You have successfully exited the project!"}, status=200)
         else:
             project.contributors.add(user)
-        return self.list(self, request, *args, **kwargs)
+            return Response({"message": "You have successfully entered the project!"}, status=200)
 
 
 class ProjectVerifyListView(generics.ListAPIView):
