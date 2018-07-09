@@ -90,6 +90,7 @@ class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
         if project.verify_status in ['unreleased', 'verification failed']:
             project.verify_status = 'verifying'
             project.save()
+            return self.get(self, request, *args, **kwargs)
         else:
             return Response({"detail": "Not allowed here"}, status=400)
 
@@ -116,6 +117,7 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin, ):
             project.contributors.remove(user)
         else:
             project.contributors.add(user)
+        return self.list(self, request, *args, **kwargs)
 
 
 class ProjectVerifyListView(generics.ListAPIView):
