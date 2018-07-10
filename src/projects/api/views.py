@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions, status
 
+from utils.api import APIView
 from projects.models import Project
 from .serializers import (
     ProjectSerializer,
@@ -29,13 +30,6 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Project.objects.filter(private=False, verify_status='verification succeed')
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
-        mutable = request.POST._mutable
-        request.POST._mutable = True
-        print(request.data.get('contributors'))
-        request.data['contributors'] = '1'
-        request.POST._mutable = mutable
-        print(request.data)
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -89,7 +83,7 @@ class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             return Response({"detail": "Not allowed here"}, status=400)
 
 
-class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin, ):
+class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = UserInlineSerializer
 

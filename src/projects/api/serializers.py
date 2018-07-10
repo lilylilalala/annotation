@@ -32,8 +32,10 @@ class ProjectSerializer(serializers.ModelSerializer):
             'project_type_name',
             'founder',
             'contributors',
+            'contributors_char',
             'description',
             'verify_status',
+            'status',
             'private',
             'deadline',
             'quantity',
@@ -45,7 +47,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'project_file',
             'uri',
         ]
-        read_only_fields = ['founder', 'verify_status']
+        read_only_fields = ['founder', 'verify_status', 'completed_status']
 
     def get_uri(self, obj):
         request = self.context.get('request')
@@ -82,8 +84,10 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'project_type_name',
             'founder',
             'contributors',
+            'contributors_char',
             'description',
             'verify_status',
+            'status',
             'private',
             'deadline',
             'quantity',

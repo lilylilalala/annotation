@@ -62,3 +62,12 @@ def project_created_receiver(sender, instance, created, *args, **kwargs):
 
 
 post_save.connect(project_created_receiver, sender=Project)
+
+
+def task_updated_receiver(sender, instance, *args, **kwargs):
+    project = instance.project
+    project.status = project.project_status
+    project.save()
+
+
+post_save.connect(task_updated_receiver, sender=Task)

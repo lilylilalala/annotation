@@ -1,7 +1,9 @@
 import os
+import re
 
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import post_save
 from django.contrib.auth import get_user_model
 from django.core.files.storage import FileSystemStorage
 
@@ -42,10 +44,12 @@ class Project(models.Model):
     tag = models.CharField(max_length=255, blank=True, null=True)
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
+    contributors_char = models.CharField(max_length=255, blank=True, default='')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
     description = models.TextField(blank=True)
     verify_status = models.CharField(max_length=255, default='unreleased', choices=VERIFY_STATUS_TYPE)
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
+    status = models.CharField(max_length=255, blank=True)
     private = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
     project_target = models.ForeignKey(Target)
@@ -77,10 +81,13 @@ class Project(models.Model):
     def project_status(self):
         if self.verify_status == 'verification succeed':
             if self.task_set.all().filter(label=''):
+                self.status = 'in progress'
                 return 'in progress'
             else:
+                self.status = 'completed'
                 return 'completed'
         else:
+            self.status = self.verify_status
             return self.verify_status
 
     @property
@@ -98,3 +105,16 @@ class Project(models.Model):
         except:
             return '0%'
 
+
+def project_created_receiver(sender, instance, *args, **kwargs):
+    if instance.contributors_char:
+        print(instance.contributors_char)
+        contributors_list = re.findall('\d+', instance.contributors_char)
+        print(contributors_list)
+        for contributor in contributors_list:
+            contributor = User.objects.get(id=int(contributor))
+            print(contributor)
+            instance.contributors.add(contributor)
+
+
+post_save.connect(project_created_receiver, sender=Project)
