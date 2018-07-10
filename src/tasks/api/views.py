@@ -25,7 +25,7 @@ class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
         if instance:
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
-        return Response({"message": "Project Completed"}, status=400)
+        return Response({"message": "Project Completed"}, status=200)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -45,7 +45,7 @@ class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
                 instance._prefetched_objects_cache = {}
             return Response(serializer.data)
         else:
-            return Response({"message": "Project Completed"}, status=400)
+            return Response({"message": "Project Completed"}, status=200)
 
     def perform_update(self, serializer):
         serializer.save(contributor=self.request.user)

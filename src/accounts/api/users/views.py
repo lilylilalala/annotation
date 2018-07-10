@@ -56,6 +56,30 @@ class UserFoundedProjectAPIView(ProjectAPIView):
         return Response({"detail": "Not allowed here"}, status=400)
 
 
+class UserOwnFoundedProjectAPIView(ProjectAPIView):
+    serializer_class = ProjectInlineUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    search_fields = ('name', 'project_type')
+    ordering_fields = ('name', 'project_type', 'timestamp')
+    filter_fields = ('project_type',)
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        if user_id is None:
+            return Project.objects.none()
+        user = User.objects.get(id=user_id)
+        projects = user.founded_projects.all()
+        project_status = self.request.GET.get("project_status", None)
+        if project_status:
+            project_id = [x.id for x in projects if x.project_status == project_status]
+            return projects.filter(pk__in=project_id)
+        return projects
+
+    def post(self, request, *args, **kwargs):
+        return Response({"detail": "Not allowed here"}, status=400)
+
+
 class UserContributedProjectAPIView(UserFoundedProjectAPIView):
     def get_queryset(self, *args, **kwargs):
         user_id = self.kwargs.get("id", None)
@@ -69,12 +93,21 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    search_fields = ('name', 'project_type')
+    ordering_fields = ('name', 'project_type', 'timestamp')
+    filter_fields = ('project_type',)
+
     def get_queryset(self, *args, **kwargs):
         user_id = self.request.user.id
         if user_id is None:
             return Project.objects.none()
         user = User.objects.get(id=user_id)
-        return user.contributed_projects.all()
+        projects = user.contributed_projects.filter(verify_status='verification succeed')
+        project_status = self.request.GET.get("project_status", None)
+        if project_status:
+            project_id = [x.id for x in projects if x.project_status == project_status]
+            return projects.filter(pk__in=project_id)
+        return projects
 
     def post(self, request, *args, **kwargs):
         return Response({"detail": "Not allowed here"}, status=400)

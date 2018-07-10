@@ -12,6 +12,11 @@ PROJECT_TYPE = {
     'EntityRecognition': '实体识别',
 }
 
+VERIFY_STATUS_TYPE = (
+    ('verification succeed', '审核通过'),
+    ('verification failed', '审核未通过'),
+)
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
@@ -21,6 +26,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField(read_only=True)
     progress = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
+    is_in = serializers.SerializerMethodField(read_only=True)
+    my_quantity = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -45,6 +52,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'project_target',
             'target',
             'project_file',
+            'is_in',
+            'my_quantity',
             'uri',
         ]
         read_only_fields = ['founder', 'verify_status', 'completed_status']
@@ -72,6 +81,16 @@ class ProjectSerializer(serializers.ModelSerializer):
         target = obj.project_target
         return TargetSerializer(target).data
 
+    def get_is_in(self, obj):
+        request = self.context.get('request')
+        user_id = request.user.id
+        return obj.contributors.filter(id=user_id).exists()
+
+    def get_my_quantity(self, obj):
+        request = self.context.get('request')
+        user_id = request.user.id
+        return obj.task_set.filter(contributor=user_id).count()
+
 
 class ProjectInlineUserSerializer(ProjectSerializer):
     class Meta:
@@ -97,6 +116,8 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'project_target',
             'target',
             'project_file',
+            'is_in',
+            'my_quantity',
             'uri',
         ]
         read_only_fields = ['founder', 'verify_status']
@@ -116,6 +137,8 @@ class ProjectReleaseSerializer(ProjectSerializer):
 
 
 class ProjectInlineVerifySerializer(ProjectSerializer):
+    verify_status = serializers.ChoiceField(default='verification succeed', choices=VERIFY_STATUS_TYPE)
+
     class Meta:
         model = Project
         fields = [
@@ -130,7 +153,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'project_file',
             'uri',
         ]
-        read_only_fields = ['name', 'project_type', 'founder', 'description', 'project_file']
+        read_only_fields = ['name', 'project_type', 'founder', 'description', 'verify_status', 'project_file']
 
 
 class ProjectTargetSerializer(ProjectSerializer):
@@ -140,4 +163,3 @@ class ProjectTargetSerializer(ProjectSerializer):
             'project_target',
             'target',
         ]
-    read_only_fields = ['project_target']
