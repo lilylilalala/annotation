@@ -105,13 +105,20 @@ class Project(models.Model):
         except:
             return '0%'
 
-
-def project_created_receiver(sender, instance, *args, **kwargs):
-    if instance.contributors_char:
-        contributors_list = re.findall('\d+', instance.contributors_char)
+    def update_contributors(self):
+        contributors_list = re.findall('\d+', self.contributors_char)
+        print(contributors_list)
         for contributor in contributors_list:
             contributor = User.objects.get(id=int(contributor))
-            instance.contributors.add(contributor)
+            print(self)
+            print(contributor)
+            self.contributors.add(contributor)
+        return True
+
+
+def project_created_receiver(sender, created, instance, *args, **kwargs):
+    if created and instance.contributors_char:
+        instance.update_contributors()
 
 
 post_save.connect(project_created_receiver, sender=Project)

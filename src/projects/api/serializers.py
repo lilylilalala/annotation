@@ -56,7 +56,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'my_quantity',
             'uri',
         ]
-        read_only_fields = ['founder', 'verify_status', 'completed_status']
+        read_only_fields = ['founder', 'verify_status', 'completed_status', 'contributors']
 
     def get_uri(self, obj):
         request = self.context.get('request')
@@ -120,7 +120,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'my_quantity',
             'uri',
         ]
-        read_only_fields = ['founder', 'verify_status']
+        read_only_fields = ['founder', 'verify_status', 'contributors']
 
 
 class ProjectReleaseSerializer(ProjectSerializer):
