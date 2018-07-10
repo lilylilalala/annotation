@@ -72,7 +72,7 @@ class User(AbstractBaseUser):
     notes = models.TextField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['full_name']
 
     objects = UserManager()
 
