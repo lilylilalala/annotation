@@ -108,12 +108,9 @@ class Project(models.Model):
 
 def project_created_receiver(sender, instance, *args, **kwargs):
     if instance.contributors_char:
-        print(instance.contributors_char)
         contributors_list = re.findall('\d+', instance.contributors_char)
-        print(contributors_list)
         for contributor in contributors_list:
             contributor = User.objects.get(id=int(contributor))
-            print(contributor)
             instance.contributors.add(contributor)
 
 
