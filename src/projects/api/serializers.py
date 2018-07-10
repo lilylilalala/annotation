@@ -12,6 +12,11 @@ PROJECT_TYPE = {
     'EntityRecognition': '实体识别',
 }
 
+VERIFY_STATUS_TYPE = (
+    ('verification succeed', '审核通过'),
+    ('verification failed', '审核未通过'),
+)
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
@@ -128,6 +133,8 @@ class ProjectReleaseSerializer(ProjectSerializer):
 
 
 class ProjectInlineVerifySerializer(ProjectSerializer):
+    verify_status = serializers.ChoiceField(default='verification succeed', choices=VERIFY_STATUS_TYPE)
+
     class Meta:
         model = Project
         fields = [
@@ -142,7 +149,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'project_file',
             'uri',
         ]
-        read_only_fields = ['name', 'project_type', 'founder', 'description', 'project_file']
+        read_only_fields = ['name', 'project_type', 'founder', 'description', 'verify_status', 'project_file']
 
 
 class ProjectTargetSerializer(ProjectSerializer):
@@ -152,4 +159,3 @@ class ProjectTargetSerializer(ProjectSerializer):
             'project_target',
             'target',
         ]
-    read_only_fields = ['project_target']

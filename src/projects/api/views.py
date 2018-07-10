@@ -148,7 +148,7 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        if instance:
+        if instance.verify_status == 'verifying':
             serializer = self.get_serializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
@@ -157,6 +157,8 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
                 instance._prefetched_objects_cache = {}
 
             return Response(serializer.data)
+        elif instance:
+            return Response({"message": "Verification is not allowed"}, status=400)
         else:
             return Response({"message": "Project not exists"}, status=400)
 
