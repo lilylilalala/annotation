@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from .views import (
     OrdinaryUserAPIView,
+    UserTypeAPIView,
     UserDetailAPIView,
     UserFoundedProjectAPIView,
     UserOwnFoundedProjectAPIView,
@@ -14,6 +15,7 @@ from .views import (
 
 urlpatterns = [
     url(r'^$', OrdinaryUserAPIView.as_view(), name='ordinary-users-list'),
+    url(r'^type$', UserTypeAPIView.as_view(), name='user-type'),
     url(r'^(?P<id>\d+)/$', UserDetailAPIView.as_view(), name='detail'),
     url(r'^(?P<id>\d+)/founded_projects/$', UserFoundedProjectAPIView.as_view(),
         name='founded-projects-list'),

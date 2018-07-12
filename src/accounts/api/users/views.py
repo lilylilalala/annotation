@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from projects.models import Project
 from projects.api.views import ProjectAPIView
-from .serializers import UserDetailSerializer, UserDetailUpdateSerializer, UserPasswordUpdateSerializer
+from .serializers import UserDetailSerializer, UserInlineSerializer, UserDetailUpdateSerializer, UserPasswordUpdateSerializer
 from projects.api.serializers import ProjectInlineUserSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly
 
@@ -19,6 +19,15 @@ class OrdinaryUserAPIView(generics.ListAPIView):
 
     search_fields = ('email', 'full_name')
     ordering_fields = ('email', 'full_name')
+
+
+class UserTypeAPIView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserInlineSerializer
+    queryset = User.objects.filter(is_active=True)
+
+    def get_object(self, *args, **kwargs):
+        return self.request.user
 
 
 class UserDetailAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
