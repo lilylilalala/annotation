@@ -75,9 +75,11 @@ class UserInlineSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'email',
+            'full_name',
             'staff',
             'admin',
             'user_type',
+            'timestamp',
             'uri',
         ]
         read_only_fields = ['email', 'staff',  'admin', 'user_type']
