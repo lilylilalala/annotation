@@ -82,7 +82,7 @@ class UserInlineSerializer(serializers.ModelSerializer):
             'timestamp',
             'uri',
         ]
-        read_only_fields = ['email', 'staff',  'admin', 'user_type']
+        read_only_fields = ['email', 'staff',  'admin', 'user_type', 'full_name']
 
     def get_uri(self, obj):
         request = self.context.get('request')
