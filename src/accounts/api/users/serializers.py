@@ -89,6 +89,29 @@ class UserInlineSerializer(serializers.ModelSerializer):
         return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)
 
 
+class EditContributorsSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    uri = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'email',
+            'full_name',
+            'staff',
+            'admin',
+            'user_type',
+            'timestamp',
+            'uri',
+        ]
+        read_only_fields = ['email', 'staff',  'admin', 'user_type', 'full_name']
+
+    def get_uri(self, obj):
+        request = self.context.get('request')
+        return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)
+
+
 class UserPasswordUpdateSerializer(serializers.ModelSerializer):
     former_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
     password = serializers.CharField(style={'input_type': 'password'}, write_only=True)

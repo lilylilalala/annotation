@@ -14,7 +14,7 @@ from .serializers import (
 )
 from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
-from accounts.api.users.serializers import UserInlineSerializer
+from accounts.api.users.serializers import UserInlineSerializer, EditContributorsSerializer
 
 
 User = get_user_model()
@@ -113,6 +113,35 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
         else:
             project.contributors.add(user)
             return Response({"message": "You have successfully entered the project!"}, status=200)
+
+
+class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = EditContributorsSerializer
+
+    search_fields = ('email', 'full_name')
+    ordering_fields = ('email', 'full_name')
+
+    def get_queryset(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        if project_id is None:
+            return User.objects.none()
+        project = Project.objects.get(id=project_id)
+        return project.contributors.all()
+
+    def put(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        user_id = request.data.get("id")
+        user = get_object_or_404(User, id=user_id)
+        if user is None:
+            return Response({"message": "User does not exist"}, status=400)
+        if user in project.contributors.all():
+            project.contributors.remove(user)
+            return Response({"message": "User has successfully exited the project!"}, status=200)
+        else:
+            project.contributors.add(user)
+            return Response({"message": "User has successfully entered the project!"}, status=200)
 
 
 class ProjectVerifyListView(generics.ListAPIView):
