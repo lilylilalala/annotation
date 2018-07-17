@@ -10,7 +10,7 @@ from .serializers import (
     ProjectInlineVerifySerializer,
     ProjectTargetSerializer,
     ProjectReleaseSerializer,
-    ProjectResultURLSerializer,
+    #ProjectResultURLSerializer,
 )
 from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
