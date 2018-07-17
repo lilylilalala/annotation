@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions, status
 
-from utils.api import APIView
 from projects.models import Project
 from .serializers import (
     ProjectSerializer,
@@ -11,6 +10,7 @@ from .serializers import (
     ProjectInlineVerifySerializer,
     ProjectTargetSerializer,
     ProjectReleaseSerializer,
+    ProjectResultURLSerializer,
 )
 from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
@@ -176,7 +176,7 @@ class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin)
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = Project.objects.get(id=project_id)
-        user_id = request.data.get("id")
+        user_id = request.data.get("user_id")
         user = get_object_or_404(User, id=user_id)
         if user is None:
             return Response({"message": "User does not exist"}, status=400)

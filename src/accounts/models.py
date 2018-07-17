@@ -102,3 +102,6 @@ class User(AbstractBaseUser):
     @property
     def owner(self):
         return self
+
+    def user_id(self):
+        return self.id

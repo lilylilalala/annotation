@@ -90,13 +90,13 @@ class UserInlineSerializer(serializers.ModelSerializer):
 
 
 class EditContributorsSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
+    user_id = serializers.IntegerField()
     uri = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'id',
+            'user_id',
             'email',
             'full_name',
             'staff',
