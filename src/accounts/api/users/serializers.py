@@ -90,7 +90,7 @@ class UserInlineSerializer(serializers.ModelSerializer):
 
 
 class EditContributorsSerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField()
+    user_id = serializers.CharField()
     uri = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
