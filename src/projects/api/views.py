@@ -21,6 +21,13 @@ User = get_user_model()
 
 
 class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
+    """
+    get:
+        【任务管理】 获取所有状态为“进行中”的公有任务列表
+
+    post:
+        【任务管理】 新建任务
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ProjectSerializer
 
@@ -42,6 +49,19 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
 
 
 class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.RetrieveAPIView):
+    """
+    get:
+        【任务管理】or【任务广场】 获取任务详情
+
+    put:
+        【任务管理】 编辑任务
+
+    patch:
+        【任务管理】 编辑任务
+
+    delete:
+        【任务管理】 删除任务
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = ProjectInlineUserSerializer
     queryset = Project.objects.all()
@@ -73,6 +93,13 @@ class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
 
 
 class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【任务管理】 获取任务详情
+
+    put:
+        【任务管理】 发布任务（只有状态为未发布和未通过的任务可以进行发布操作）
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = ProjectReleaseSerializer
     queryset = Project.objects.all()
@@ -90,6 +117,14 @@ class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
 
 class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【参与任务】 获取当前任务的标注人列表
+
+    put:
+        【参与任务】 参与或退出任务
+            若当前用户不在标注人列表中，通过put方法参与该任务；若当前用户在标注人列表中，通过put方法退出该任务
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = UserInlineSerializer
 
@@ -116,6 +151,15 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
 
 
 class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【成员管理】 获取任务的标注人列表
+
+    put:
+        【成员管理】 添加或删除标注人
+            获取用户id，若该用户不在标注人列表中，通过put方法在标注人列表在添加该用户；
+            若该用户在标注人列表中，通过put方法从标注人列表中删除该用户
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = EditContributorsSerializer
 
@@ -145,6 +189,10 @@ class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin)
 
 
 class ProjectVerifyListView(generics.ListAPIView):
+    """
+    get:
+        【任务审核】 获取状态为“审核中”的任务列表
+    """
     Permission_classes = [IsStaff]
     serializer_class = ProjectSerializer
 
@@ -154,6 +202,13 @@ class ProjectVerifyListView(generics.ListAPIView):
 
 
 class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【任务审核】 获取审核中的任务详情
+
+    put:
+        【任务审核】 修改审核状态为“通过”或“不通过”
+    """
     Permission_classes = [IsStaff]
     serializer_class = ProjectInlineVerifySerializer
 
@@ -190,6 +245,16 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
 
 
 class ProjectTargetDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【任务管理】 获取任务目标
+
+    put:
+        【任务管理】 更改任务目标
+
+    patch:
+        【任务管理】 更改任务目标
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = ProjectTargetSerializer
     queryset = Project.objects.all()
@@ -203,6 +268,10 @@ class ProjectTargetDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
 
 
 class ProjectResultView(generics.ListAPIView):
+    """
+    get:
+        【任务管理】 获取任务结果详情
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = TaskSerializer
 

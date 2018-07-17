@@ -10,6 +10,13 @@ User = get_user_model()
 
 
 class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
+    """
+    get:
+        【目标管理】 获取发起人创建的目标列表
+
+    post:
+        【目标管理】 新增目标
+    """
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = TargetSerializer
 
@@ -31,6 +38,20 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
 
 
 class TargetAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.RetrieveAPIView):
+    """
+    get:
+        【目标管理】 获取目标详情
+
+    put:
+        【目标管理】 编辑目标
+
+    patch:
+        【目标管理】 编辑目标
+
+    delete:
+        【目标管理】 删除目标
+
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = TargetSerializer
     queryset = Target.objects.all()

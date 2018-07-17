@@ -13,6 +13,10 @@ User = get_user_model()
 
 
 class OrdinaryUserAPIView(generics.ListAPIView):
+    """
+    get:
+        【成员管理】 获取普通用户列表
+    """
     serializer_class = UserDetailSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = User.objects.filter(user_type='ordinary_user')
@@ -22,6 +26,10 @@ class OrdinaryUserAPIView(generics.ListAPIView):
 
 
 class UserTypeAPIView(generics.RetrieveAPIView):
+    """
+    get:
+        获取当前用户类型
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserInlineSerializer
     queryset = User.objects.filter(is_active=True)
@@ -30,28 +38,25 @@ class UserTypeAPIView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class UserDetailAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
-    permission_classes = [IsOwnerOrReadOnly]
+class UserDetailAPIView(generics.RetrieveAPIView):
+    """
+    get:
+        【成员管理】 获取当前用户详情
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = UserDetailSerializer
     queryset = User.objects.filter(is_active=True)
     lookup_field = 'id'
 
-    def get_serializer_context(self):
-        return {'request': self.request}
-
-    def get_serializer_class(self, *args, **kwargs):
-        if self.request.user == self.get_object():
-            return UserDetailUpdateSerializer
-        else:
-            return UserDetailSerializer
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
 
 class UserFoundedProjectAPIView(ProjectAPIView):
+    """
+    get:
+        【任务管理】 获取用户创建的任务列表
+
+    post:
+        没有post方法
+    """
     serializer_class = ProjectInlineUserSerializer
 
     def get_queryset(self, *args, **kwargs):
@@ -66,6 +71,13 @@ class UserFoundedProjectAPIView(ProjectAPIView):
 
 
 class UserOwnFoundedProjectAPIView(ProjectAPIView):
+    """
+    get:
+        【任务管理】 根据用户id，获取当前用户创建的任务列表
+
+    post:
+        没有post方法
+    """
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -90,6 +102,13 @@ class UserOwnFoundedProjectAPIView(ProjectAPIView):
 
 
 class UserContributedProjectAPIView(UserFoundedProjectAPIView):
+    """
+    get:
+        【参与任务】 根据用户id，获取用户参与的任务列表
+
+    post:
+        没有post方法
+    """
     def get_queryset(self, *args, **kwargs):
         user_id = self.kwargs.get("id", None)
         if user_id is None:
@@ -99,6 +118,13 @@ class UserContributedProjectAPIView(UserFoundedProjectAPIView):
 
 
 class UserOwnContributedProjectAPIView(ProjectAPIView):
+    """
+    get:
+        【参与任务】 获取当前用户参与的任务列表
+
+    post:
+        没有post方法
+    """
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -123,6 +149,16 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
 
 
 class UserUpdateInfoAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【个人中心】 获取我的信息
+
+    put:
+        【个人中心】 修改个人信息
+
+    patch:
+        【个人中心】 修改个人信息
+    """
     serializer_class = UserDetailUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -140,6 +176,10 @@ class UserUpdateInfoAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
 
 class UserPasswordAPIView(generics.CreateAPIView):
+    """
+    post:
+        【个人中心】 修改密码
+    """
     serializer_class = UserPasswordUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 

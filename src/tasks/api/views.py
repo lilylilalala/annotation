@@ -9,6 +9,16 @@ from accounts.api.permissions import IsContributorOrReadOnly
 
 
 class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【参与任务】 随机获取任务中的一道未解答的问题
+
+    put:
+        【参与任务】 答题，给问题添加目标标签
+
+    patch:
+        【参与任务】 答题，给问题添加目标标签
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsContributorOrReadOnly]
     serializer_class = TaskSerializer
 
