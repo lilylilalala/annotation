@@ -24,13 +24,16 @@ class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
     def get_object(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
-        project = get_object_or_404(Project, id=project_id)
         spare_set = Task.objects.filter(project=project_id, label='')
         if spare_set:
             return spare_set.first()
         return Task.objects.none().first()
 
     def get(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        if project.verify_status != 'verification succeed':
+            return Response({"message": "Project is not verified yet"}, status=400)
         instance = self.get_object()
         if instance:
             serializer = self.get_serializer(instance)
