@@ -10,6 +10,7 @@ from .views import (
     ProjectVerifyDetailView,
     ProjectTargetDetailView,
     ProjectResultView,
+    ProjectResultDownloadView,
 )
 
 
@@ -23,4 +24,5 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/edit_contributors/$', ProjectEditContributorsView.as_view(), name='edit-contributors'),
     url(r'^verify/$', ProjectVerifyListView.as_view(), name='verify-projects-list'),
     url(r'^(?P<id>\d+)/verify/$', ProjectVerifyDetailView.as_view(), name='verify-projects-detail'),
+    url(r'^(?P<id>\d+)/download_result/$', ProjectResultDownloadView.as_view(), name='download-result'),
 ]

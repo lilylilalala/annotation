@@ -163,3 +163,13 @@ class ProjectTargetSerializer(ProjectSerializer):
             'project_target',
             'target',
         ]
+
+
+class ProjectResultURLSerializer(ProjectSerializer):
+    class Meta:
+        model = Project
+        fields = [
+            'status',
+            'quantity',
+            'result_file',
+        ]

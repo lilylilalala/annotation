@@ -1,7 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions, status
+import os
+import csv
 
 from projects.models import Project
 from .serializers import (
@@ -10,7 +15,7 @@ from .serializers import (
     ProjectInlineVerifySerializer,
     ProjectTargetSerializer,
     ProjectReleaseSerializer,
-    #ProjectResultURLSerializer,
+    ProjectResultURLSerializer,
 )
 from tasks.api.serializers import TaskSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
@@ -282,3 +287,43 @@ class ProjectResultView(generics.ListAPIView):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
         return project.task_set.all().exclude(label='')
+
+
+class ProjectResultDownloadView(generics.RetrieveAPIView):
+    """
+    get:
+        获取任务结果文件链接
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = ProjectResultURLSerializer
+    lookup_field = 'id'
+
+    def create_result_file(self, instance):
+        try:
+            file_name = '%s_%s_%s_result.csv' % (instance.id, instance.name, instance.project_type)
+            instance.result_file.save(file_name, ContentFile('RESULT'))
+            f = open(os.path.join(settings.RESULT_ROOT, file_name), mode='w')
+            writer = csv.writer(f)
+            writer.writerow(['text_content', 'label'])
+            queryset = instance.task_set.all()
+            for obj in queryset:
+                path = obj.file_path
+                with open(path, 'r') as file:
+                    text_content = file.read().strip()
+                writer.writerow([text_content, obj.label])
+        except:
+            instance.result_file.delete()
+            return Response({"message": "Fail to create result file!"}, status=400)
+
+    def get(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        if project.is_completed:
+            if project.result_file:
+                pass
+            else:
+                self.create_result_file(project)
+            serializer = self.get_serializer(project)
+            return Response(serializer.data)
+        else:
+            return Response({"message": "Project is not completed"}, status=400)

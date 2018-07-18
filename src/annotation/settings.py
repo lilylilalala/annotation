@@ -141,5 +141,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media_root')
 
 
+# Result files
+
+RESULT_URL = '/result/'
+
+RESULT_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'result_root')
+
+
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'

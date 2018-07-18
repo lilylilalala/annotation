@@ -61,6 +61,11 @@ class Project(models.Model):
     )
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    result_file = models.FileField(
+        storage=FileSystemStorage(location=settings.RESULT_ROOT, base_url=settings.RESULT_URL),
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return str(self.id) + '_' + self.project_type
