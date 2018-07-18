@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'annotation',
         'USER': 'root',
-        'PASSWORD': 'mysql123456',
+        'PASSWORD': '123456',
         'HOST': 'localhost',
     }
 }
@@ -138,14 +138,14 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media_root')
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 
 
 # Result files
 
 RESULT_URL = '/result/'
 
-RESULT_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'result_root')
+RESULT_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'result')
 
 
 # Custom user model
