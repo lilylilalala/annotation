@@ -13,11 +13,26 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
 from django.conf.urls import url, include
 from django.contrib import admin
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Annotation API",
+        default_version='v1',
+        description="Test description",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
+    url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=None), name='schema-json'),
+    url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=None), name='schema-swagger-ui'),
+    url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
     url(r'^admin/', admin.site.urls),
     url(r'^api/auth/', include('accounts.api.urls', namespace='api-auth')),
     url(r'^api/users/', include('accounts.api.users.urls', namespace='api-users')),
