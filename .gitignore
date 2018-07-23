@@ -111,4 +111,4 @@ ENV/
 *.sublime-project
 .mypy_cache/
 .idea/
-media_root/
+media/
