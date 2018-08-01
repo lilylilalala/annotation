@@ -196,14 +196,15 @@ class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin)
 class ProjectVerifyListView(generics.ListAPIView):
     """
     get:
-        【任务审核】 获取状态为“审核中”的任务列表
+        【任务审核】 获取状态为“审核中”or“已通过”or“未通过”的任务列表
     """
     Permission_classes = [IsStaff]
     serializer_class = ProjectSerializer
 
     search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
-    queryset = Project.objects.filter(verify_status='verifying')
+    filter_fields = ('verify_status',)
+    queryset = Project.objects.exclude(verify_status='unreleased')
 
 
 class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
