@@ -155,15 +155,49 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
             return Response({"message": "You have successfully entered the project!"}, status=200)
 
 
-class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
+class ProjectAddContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【成员管理】 获取未参与任务的成员列表
+
+    put:
+        【添加成员】 添加标注人
+            获取用户id，若该用户不在标注人列表中，通过put方法在标注人列表在添加该用户；
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = EditContributorsSerializer
+
+    search_fields = ('email', 'full_name')
+    ordering_fields = ('email', 'full_name')
+
+    def get_queryset(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        if project_id is None:
+            return User.objects.none()
+        return User.objects.exclude(contributed_projects=project_id)
+
+    def put(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        user_id = request.data.get("user_id")
+        user = get_object_or_404(User, id=user_id)
+        if user is None:
+            return Response({"message": "User does not exist"}, status=400)
+        if user not in project.contributors.all():
+            project.contributors.add(user)
+            return Response({"message": "User has successfully entered the project!"}, status=200)
+        else:
+            return Response({"message": "User is already in the project!"}, status=400)
+
+
+class ProjectDeleteContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
     """
     get:
         【成员管理】 获取任务的标注人列表
 
     put:
-        【成员管理】 添加或删除标注人
-            获取用户id，若该用户不在标注人列表中，通过put方法在标注人列表在添加该用户；
-            若该用户在标注人列表中，通过put方法从标注人列表中删除该用户
+        【删除成员】 删除标注人
+            获取用户id，若该用户在标注人列表中，通过put方法从标注人列表中删除该用户
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = EditContributorsSerializer
@@ -189,8 +223,7 @@ class ProjectEditContributorsView(generics.ListAPIView, mixins.UpdateModelMixin)
             project.contributors.remove(user)
             return Response({"message": "User has successfully exited the project!"}, status=200)
         else:
-            project.contributors.add(user)
-            return Response({"message": "User has successfully entered the project!"}, status=200)
+            return Response({"message": "User is NOT in the project!"}, status=400)
 
 
 class ProjectVerifyListView(generics.ListAPIView):
