@@ -40,6 +40,13 @@ class Task(models.Model):
     def __str__(self):
         return str(self.project) + '_' + str(self.id)
 
+    @property
+    def contributor_name(self):
+        if self.contributor:
+            return self.contributor.full_name
+        else:
+            return None
+
 
 def project_created_receiver(sender, instance, created, *args, **kwargs):
     if created and instance.project_file:

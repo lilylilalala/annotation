@@ -6,6 +6,7 @@ from tasks.models import Task
 class TaskSerializer(serializers.ModelSerializer):
     # text_file_path = serializers.SerializerMethodField(read_only=True)
     text_content = serializers.SerializerMethodField(read_only=True)
+    contributor_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Task
@@ -15,6 +16,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'text_content',
             'label',
             'contributor',
+            'contributor_name',
             'updated',
         ]
         read_only_fields = ['id', 'project', 'contributor']
@@ -27,4 +29,7 @@ class TaskSerializer(serializers.ModelSerializer):
         with open(path, 'r') as file:
             text_content = file.read().strip()
         return text_content
+
+    def get_contributor_name(self, obj):
+        return obj.contributor_name
 
