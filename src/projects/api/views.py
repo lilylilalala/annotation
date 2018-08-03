@@ -336,7 +336,7 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
         try:
             file_name = '%s_%s_%s_result.csv' % (instance.id, instance.name, instance.project_type)
             instance.result_file.save(file_name, ContentFile('RESULT'))
-            f = open(os.path.join(settings.RESULT_ROOT, file_name), mode='w')
+            f = open(os.path.join(settings.RESULT_ROOT, file_name), mode='w', newline='')
             writer = csv.writer(f)
             writer.writerow(['text_content', 'label'])
             queryset = instance.task_set.all()

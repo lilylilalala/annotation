@@ -169,7 +169,7 @@ class ProjectResultURLSerializer(ProjectSerializer):
     class Meta:
         model = Project
         fields = [
-            'status',
+            'project_status',
             'quantity',
             'result_file',
         ]
