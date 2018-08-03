@@ -40,7 +40,7 @@ def upload_project_file_path(instance, filename):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=128, default='unnamed project')
+    name = models.CharField(max_length=128, default='unnamed_project')
     tag = models.CharField(max_length=255, blank=True, null=True)
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
@@ -59,6 +59,7 @@ class Project(models.Model):
         blank=True,
         null=True,
     )
+    is_file_changed = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     result_file = models.FileField(
