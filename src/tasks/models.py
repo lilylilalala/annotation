@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
-from django.core.files.storage import FileSystemStorage
 
 from projects.models import Project
 from annotation.utils import get_filename_ext, random_string_generator
@@ -75,7 +74,7 @@ def create_tasks(instance):
         reader = csv.DictReader(open(project_file_path, encoding='utf-8'))
 
         for row in reader:
-            file_name = '%s.csv' % row['id']
+            file_name = '%s.csv' % row['\ufeffid']
             final_project_file_path = os.path.join(project_file_dir, file_name)
             f = open(final_project_file_path, 'w', newline='')
             writer = csv.writer(f, dialect='excel')

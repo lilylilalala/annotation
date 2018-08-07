@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions, status
+from annotation.utils import get_filename_ext
 import os
 import csv
 
@@ -336,15 +336,16 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
         try:
             file_name = '%s_%s_%s_result.csv' % (instance.id, instance.name, instance.project_type)
             instance.result_file.save(file_name, ContentFile('RESULT'))
-            f = open(os.path.join(settings.RESULT_ROOT, file_name), mode='w', newline='')
+            f = open(os.path.join(settings.RESULT_ROOT, file_name), mode='w', encoding='utf-8', newline='')
             writer = csv.writer(f)
-            writer.writerow(['text_content', 'label'])
+            writer.writerow(['id', 'text', 'label'])
             queryset = instance.task_set.all()
             for obj in queryset:
                 path = obj.file_path
+                index, ext = get_filename_ext(os.path.basename(path))
                 with open(path, 'r') as file:
-                    text_content = file.read().strip()
-                writer.writerow([text_content, obj.label])
+                    content = file.read().strip()
+                writer.writerow([index, content, obj.label])
         except:
             instance.result_file.delete()
             return Response({"message": "Fail to create result file!"}, status=400)
