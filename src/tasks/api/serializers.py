@@ -26,7 +26,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def get_text_content(self, obj):
         path = obj.file_path
-        with open(path, 'r') as file:
+        with open(path, 'r', encoding='utf-8') as file:
             text_content = file.read().strip()
         return text_content
 

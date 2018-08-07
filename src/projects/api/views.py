@@ -343,7 +343,7 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
             for obj in queryset:
                 path = obj.file_path
                 index, ext = get_filename_ext(os.path.basename(path))
-                with open(path, 'r') as file:
+                with open(path, 'r', encoding='utf-8') as file:
                     content = file.read().strip()
                 writer.writerow([index, content, obj.label])
         except:
