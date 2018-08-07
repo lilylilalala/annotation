@@ -3,7 +3,8 @@ import re
 
 from django.db import models
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_save
 from django.contrib.auth import get_user_model
 from django.core.files.storage import FileSystemStorage
 
@@ -87,13 +88,10 @@ class Project(models.Model):
     def project_status(self):
         if self.verify_status == 'verification succeed':
             if self.task_set.all().filter(label=''):
-                self.status = 'in progress'
                 return 'in progress'
             else:
-                self.status = 'completed'
                 return 'completed'
         else:
-            self.status = self.verify_status
             return self.verify_status
 
     @property
@@ -120,9 +118,15 @@ class Project(models.Model):
             self.contributors.add(contributor)
 
 
+@receiver(pre_save, sender=Project)
+def status_update_receiver(sender, instance, *args, **kwargs):
+    if instance.project_status:
+        instance.status = instance.project_status
+
+
+@receiver(post_save, sender=Project)
 def project_updated_receiver(sender, instance, *args, **kwargs):
     if instance.contributors_char:
         instance.update_contributors()
 
 
-post_save.connect(project_updated_receiver, sender=Project)

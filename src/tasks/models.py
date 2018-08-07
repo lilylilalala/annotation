@@ -106,7 +106,7 @@ def project_file_post_receiver(sender, instance, created, *args, **kwargs):
         create_tasks(instance)
 
 
-@receiver(pre_save, sender=Task)
+@receiver(post_save, sender=Task)
 def task_updated_receiver(sender, instance, *args, **kwargs):
     project = instance.project
     Project.objects.filter(id=project.id).update(status=project.project_status)
