@@ -58,7 +58,9 @@ def create_tasks(instance):
         zf = zipfile.ZipFile(project_file_path, 'r')
         zf.extractall(path=project_file_dir)
         inner_dir_name = os.listdir(project_file_dir)[0]
-        final_project_file_path = os.path.join(project_file_dir, inner_dir_name)
+        project_file_path = os.path.join(project_file_dir, inner_dir_name)
+        final_project_file_path = project_file_path.encode('cp437').decode('gbk')
+        os.rename(project_file_path, final_project_file_path)
         file_name_list = os.listdir(final_project_file_path)
 
         for file_name in file_name_list:
