@@ -17,7 +17,7 @@ from .serializers import (
     ProjectReleaseSerializer,
     ProjectResultURLSerializer,
 )
-from tasks.api.serializers import TaskSerializer
+from tasks.api.serializers import TaskResultSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 from accounts.api.users.serializers import UserInlineSerializer, EditContributorsSerializer
 
@@ -312,7 +312,7 @@ class ProjectResultView(generics.ListAPIView):
         【任务管理】 获取任务结果详情
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    serializer_class = TaskSerializer
+    serializer_class = TaskResultSerializer
 
     search_fields = ('contributor', 'label')
     ordering_fields = ('contributor', 'updated')
@@ -321,6 +321,26 @@ class ProjectResultView(generics.ListAPIView):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
         return project.task_set.all().exclude(label='')
+
+
+class ProjectMyResultView(generics.ListAPIView):
+    """
+    get:
+        【任务管理】 获取标注人已答过的题目
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    serializer_class = TaskResultSerializer
+
+    search_fields = ('contributor', 'label')
+    ordering_fields = ('contributor', 'updated')
+
+    def get_queryset(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        user_id = self.request.user.id
+        if user_id is None:
+            return Project.task_set.none()
+        return project.task_set.filter(contributor_id=user_id)
 
 
 class ProjectResultDownloadView(generics.RetrieveAPIView):

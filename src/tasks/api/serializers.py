@@ -58,3 +58,17 @@ class TaskSerializer(serializers.ModelSerializer):
     def get_contributor_name(self, obj):
         return obj.contributor_name
 
+
+class TaskResultSerializer(TaskSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            'id',
+            'project',
+            'project_type',
+            'text_content',
+            'label',
+            'contributor',
+            'contributor_name',
+            'updated',
+        ]
