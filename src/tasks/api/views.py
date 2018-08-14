@@ -5,7 +5,7 @@ from rest_framework import generics, mixins, permissions
 from projects.models import Project
 from tasks.models import Task
 from .serializers import TaskSerializer
-from accounts.api.permissions import IsContributorOrReadOnly
+from accounts.api.permissions import IsContributorOrReadOnly, HasContributed
 import django.utils.timezone as timezone
 
 
@@ -63,6 +63,47 @@ class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             return Response(serializer.data)
         else:
             return Response({"message": "Project Completed"}, status=200)
+
+    def perform_update(self, serializer):
+        serializer.save(contributor=self.request.user)
+
+
+class TaskUpdateView(generics.RetrieveUpdateAPIView):
+    """
+    get:
+        【参与任务】 根据task id，获取已答过的题目详情
+
+    put:
+        【参与任务】 修改题目标签，非空
+
+    patch:
+        【参与任务】 修改题目标签，非空
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, HasContributed]
+    serializer_class = TaskSerializer
+    queryset = Task.objects.all()
+    lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        if instance:
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            if serializer.validated_data["label"]:
+                self.perform_update(serializer)
+
+            if getattr(instance, '_prefetched_objects_cache', None):
+                instance._prefetched_objects_cache = {}
+            return Response(serializer.data)
+        else:
+            return Response({"message": "Detail not found"}, status=400)
 
     def perform_update(self, serializer):
         serializer.save(contributor=self.request.user)

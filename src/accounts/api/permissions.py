@@ -65,3 +65,10 @@ class IsStaff(permissions.BasePermission):
             return True
         else:
             return False
+
+
+class HasContributed(permissions.BasePermission):
+    message = 'You must have contributed to this content to change.'
+
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.contributor
