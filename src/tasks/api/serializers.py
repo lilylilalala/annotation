@@ -27,9 +27,10 @@ class TaskSerializer(serializers.ModelSerializer):
             'label',
             'contributor',
             'contributor_name',
+            'created',
             'updated',
         ]
-        read_only_fields = ['id', 'project', 'contributor']
+        read_only_fields = ['id', 'project', 'contributor', 'created']
 
     # def get_file_path(self, obj):
     #     return obj.text_file.url
@@ -70,5 +71,6 @@ class TaskResultSerializer(TaskSerializer):
             'label',
             'contributor',
             'contributor_name',
+            'created',
             'updated',
         ]

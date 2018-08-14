@@ -332,7 +332,7 @@ class ProjectMyResultView(generics.ListAPIView):
     serializer_class = TaskResultSerializer
 
     search_fields = ('contributor', 'label')
-    ordering_fields = ('contributor', 'updated')
+    ordering_fields = ('contributor', 'created', 'updated')
 
     def get_queryset(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)

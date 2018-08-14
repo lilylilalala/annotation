@@ -34,6 +34,7 @@ class Task(models.Model):
     file_path = models.CharField(max_length=255)
     label = models.CharField(max_length=255, blank=True)
     contributor = models.ForeignKey(User, blank=True, null=True, default=None)
+    created = models.DateTimeField(null=True)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

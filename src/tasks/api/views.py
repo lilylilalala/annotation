@@ -6,6 +6,7 @@ from projects.models import Project
 from tasks.models import Task
 from .serializers import TaskSerializer
 from accounts.api.permissions import IsContributorOrReadOnly
+import django.utils.timezone as timezone
 
 
 class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
@@ -52,7 +53,10 @@ class TaskDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
         if instance:
             serializer = self.get_serializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
+            if serializer.validated_data["label"]:
+                if not instance.created:
+                    serializer.validated_data["created"] = timezone.now()
+                self.perform_update(serializer)
 
             if getattr(instance, '_prefetched_objects_cache', None):
                 instance._prefetched_objects_cache = {}
