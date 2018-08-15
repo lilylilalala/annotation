@@ -85,25 +85,13 @@ class TaskUpdateView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        if request.data['label']:
+            return self.update(request, *args, **kwargs)
+        else:
+            return Response({"message": "Label should not be empty"}, status=400)
 
     def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        if instance:
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            if serializer.validated_data["label"]:
-                self.perform_update(serializer)
-
-            if getattr(instance, '_prefetched_objects_cache', None):
-                instance._prefetched_objects_cache = {}
-            return Response(serializer.data)
+        if request.data['label']:
+            return self.update(request, *args, **kwargs)
         else:
-            return Response({"message": "Detail not found"}, status=400)
-
-    def perform_update(self, serializer):
-        serializer.save(contributor=self.request.user)
+            return Response({"message": "Label should not be empty"}, status=400)
