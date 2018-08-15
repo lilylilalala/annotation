@@ -3,6 +3,12 @@ from rest_framework import serializers
 from tasks.models import Task
 
 
+SWITCH_TYPE = (
+    ('former', '上一题'),
+    ('next', '下一题'),
+)
+
+
 class TaskSerializer(serializers.ModelSerializer):
     # text_file_path = serializers.SerializerMethodField(read_only=True)
     project_type = serializers.SerializerMethodField(read_only=True)
@@ -12,6 +18,8 @@ class TaskSerializer(serializers.ModelSerializer):
     target_description = serializers.SerializerMethodField(read_only=True)
     text_content = serializers.SerializerMethodField(read_only=True)
     contributor_name = serializers.SerializerMethodField(read_only=True)
+    previous_id = serializers.SerializerMethodField(read_only=True)
+    next_id = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Task
@@ -29,8 +37,10 @@ class TaskSerializer(serializers.ModelSerializer):
             'contributor_name',
             'created',
             'updated',
+            'previous_id',
+            'next_id',
         ]
-        read_only_fields = ['id', 'project', 'contributor', 'created']
+        read_only_fields = ['id', 'project', 'contributor', 'created', 'previous_id', 'next_id']
 
     # def get_file_path(self, obj):
     #     return obj.text_file.url
@@ -58,6 +68,22 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def get_contributor_name(self, obj):
         return obj.contributor_name
+
+    def get_previous_id(self, obj):
+        my_tasks = Task.objects.filter(project=obj.project, contributor=obj.contributor)
+        try:
+            previous = my_tasks.filter(created__lt=obj.created).order_by('-created').first()
+            return previous.id
+        except:
+            return None
+
+    def get_next_id(self, obj):
+        my_tasks = Task.objects.filter(project=obj.project, contributor=obj.contributor)
+        try:
+            next_task = my_tasks.filter(created__gt=obj.created).order_by('created').first()
+            return next_task.id
+        except:
+            return None
 
 
 class TaskResultSerializer(TaskSerializer):

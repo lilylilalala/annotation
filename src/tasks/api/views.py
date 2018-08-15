@@ -91,7 +91,4 @@ class TaskUpdateView(generics.RetrieveUpdateAPIView):
             return Response({"message": "Label should not be empty"}, status=400)
 
     def patch(self, request, *args, **kwargs):
-        if request.data['label']:
-            return self.update(request, *args, **kwargs)
-        else:
-            return Response({"message": "Label should not be empty"}, status=400)
+        return self.put(request, *args, **kwargs)
