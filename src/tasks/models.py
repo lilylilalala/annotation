@@ -79,9 +79,10 @@ def create_tasks(instance):
         for row in reader:
             file_name = '%s.csv' % row['\ufeffid']
             final_project_file_path = os.path.join(project_file_dir, file_name)
-            f = open(final_project_file_path, 'w', newline='')
-            writer = csv.writer(f, dialect='excel')
-            writer.writerow([row['text']])
+            f = open(final_project_file_path, 'w', newline='', encoding='utf-8')
+            writer = csv.DictWriter(f, dialect='excel', fieldnames=reader.fieldnames)
+            writer.writeheader()
+            writer.writerow(row)
             Task.objects.create(
                 project=instance,
                 file_path=final_project_file_path,

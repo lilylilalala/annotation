@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from tasks.models import Task
-
+from annotation.utils import get_filename_ext
+import csv
 
 SWITCH_TYPE = (
     ('former', '上一题'),
@@ -62,9 +63,16 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def get_text_content(self, obj):
         path = obj.file_path
-        with open(path, 'r', encoding='utf-8') as file:
-            text_content = file.read().strip()
-        return text_content
+        name, ext = get_filename_ext(path)
+        if ext == '.csv':
+            reader = csv.DictReader(open(path, encoding='utf-8'))
+            for i, row in enumerate(reader):
+                if i == 0:
+                    content = row
+        else:
+            with open(path, 'r', encoding='utf-8') as file:
+                content = file.read().strip()
+        return content
 
     def get_contributor_name(self, obj):
         return obj.contributor_name

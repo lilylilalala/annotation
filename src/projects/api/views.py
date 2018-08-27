@@ -357,17 +357,21 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
             file_name = '%s_%s_%s_result.csv' % (instance.id, instance.name, instance.project_type)
             instance.result_file.save(file_name, ContentFile('RESULT'))
             f = open(os.path.join(settings.RESULT_ROOT, file_name), mode='w', encoding='utf-8', newline='')
-            writer = csv.writer(f)
-            writer.writerow(['id', 'text', 'label'])
             queryset = instance.task_set.all()
-            for obj in queryset:
+
+            for i, obj in enumerate(queryset):
                 path = obj.file_path
-                index, ext = get_filename_ext(os.path.basename(path))
-                with open(path, 'r', encoding='utf-8') as file:
-                    content = file.read().strip()
-                writer.writerow([index, content, obj.label])
+                reader = csv.DictReader(open(path, encoding='utf-8'))
+                fieldnames = reader.fieldnames
+                fieldnames.append('label')
+                if i == 0:
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writeheader()
+                for row in reader:
+                    row['label'] = obj.label
+                    writer.writerow(row)
         except:
-            instance.result_file.delete()
+            #instance.result_file.delete()
             return Response({"message": "Fail to create result file!"}, status=400)
 
     def get(self, request, *args, **kwargs):
