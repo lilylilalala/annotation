@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'projects',
     'tasks',
     'targets',
+    'tags',
 ]
 
 MIDDLEWARE = [
@@ -136,14 +137,14 @@ STATIC_URL = '/static/'
 
 # Media files
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'http://10.1.62.101/media/'
 
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 
 
 # Result files
 
-RESULT_URL = '/result/'
+RESULT_URL = 'http://10.1.62.101/result/'
 
 RESULT_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'result')
 
