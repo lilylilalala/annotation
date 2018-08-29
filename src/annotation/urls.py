@@ -39,4 +39,5 @@ urlpatterns = [
     url(r'^api/projects/', include('projects.api.urls', namespace='api-projects')),
     url(r'^api/tasks/', include('tasks.api.urls', namespace='api-tasks')),
     url(r'^api/targets/', include('targets.api.urls', namespace='api-targets')),
+    url(r'^api/tags/', include('tags.api.urls', namespace='api-tags')),
 ]
