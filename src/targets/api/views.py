@@ -3,7 +3,7 @@ from rest_framework import generics, mixins, permissions
 
 from targets.models import Target
 from .serializers import TargetSerializer
-from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff, IsOwner
+from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 
 
 User = get_user_model()
@@ -17,7 +17,7 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     post:
         【目标管理】 新增目标
     """
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     serializer_class = TargetSerializer
 
     passed_id = None
