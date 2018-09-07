@@ -18,3 +18,14 @@ class TagSerializer(serializers.ModelSerializer):
             'updated',
         ]
         read_only_fields = ['updated', 'founder']
+
+
+class TagBriefSerializer(TagSerializer):
+    class Meta:
+        model = Tag
+        fields = [
+            'id',
+            'name',
+            'level',
+        ]
+
