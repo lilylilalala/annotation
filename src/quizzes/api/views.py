@@ -30,6 +30,18 @@ class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
         serializer.save(founder=self.request.user)
 
 
+class QuizAPIDetailView(generics.RetrieveAPIView):
+    """
+    get:
+        【任务管理】 根据id，获取测试题详情
+
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = QuizSerializer
+    queryset = Quiz.objects.all()
+    lookup_field = 'id'
+
+
 class QuestionAPIView(generics.ListAPIView):
     """
     get:
