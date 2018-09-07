@@ -14,15 +14,10 @@ import csv
 
 User = get_user_model()
 
-
-# def upload_file_path(instance, filename):
-#     name, ext = get_filename_ext(filename)
-#     new_filename = random_string_generator()
-#     final_filename = '{new_filename}{ext}'.format(new_filename=new_filename, ext=ext)
-#     return '{project_id}/{final_filename}'.format(
-#         project_id=instance.project.id,
-#         final_filename=final_filename
-#     )
+ANSWER_TYPE = (
+    (0, 'Contribute'),
+    (1, 'Check'),
+)
 
 
 class Task(models.Model):
@@ -31,9 +26,11 @@ class Task(models.Model):
     #     upload_to=upload_file_path,
     #     storage=FileSystemStorage(location=settings.MEDIA_ROOT),
     # )
+    copy = models.IntegerField(blank=True, null=True)
     file_path = models.CharField(max_length=255)
     label = models.CharField(max_length=255, blank=True)
     contributor = models.ForeignKey(User, blank=True, null=True, default=None)
+    type = models.CharField(max_length=128, blank=True, choices=ANSWER_TYPE)
     created = models.DateTimeField(null=True)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -54,6 +51,8 @@ def create_tasks(instance):
     project_file_path = os.path.join(settings.MEDIA_ROOT, instance.project_file.name)
     project_file_dir = os.path.join(settings.MEDIA_ROOT, name)
     os.mkdir(project_file_dir)
+    rr = instance.repetition_rate
+    length = 0
 
     if ext == '.zip':
         zf = zipfile.ZipFile(project_file_path, 'r')
@@ -64,11 +63,15 @@ def create_tasks(instance):
         os.rename(project_file_path, final_project_file_path)
         file_name_list = os.listdir(final_project_file_path)
 
-        for file_name in file_name_list:
-            Task.objects.create(
-                project=instance,
-                file_path=os.path.join(final_project_file_path, file_name),
-            )
+        for i, file_name in enumerate(file_name_list):
+            for j in range(int(rr)):
+                Task.objects.create(
+                    project=instance,
+                    file_path=os.path.join(final_project_file_path, file_name),
+                    copy=i,
+                    type=0,
+                )
+        length = i + 1
 
     elif ext == '.csv':
         inner_dir_name = '%s' % instance.name
@@ -76,17 +79,30 @@ def create_tasks(instance):
         os.mkdir(project_file_dir)
         reader = csv.DictReader(open(project_file_path, encoding='utf-8'))
 
-        for row in reader:
-            file_name = '%s.csv' % row['\ufeffid']
-            final_project_file_path = os.path.join(project_file_dir, file_name)
-            f = open(final_project_file_path, 'w', newline='', encoding='utf-8')
-            writer = csv.DictWriter(f, dialect='excel', fieldnames=reader.fieldnames)
-            writer.writeheader()
-            writer.writerow(row)
-            Task.objects.create(
-                project=instance,
-                file_path=final_project_file_path,
-            )
+        for i, row in enumerate(reader):
+            for j in range(int(rr)):
+                file_name = '%s.csv' % row['\ufeffid']
+                final_project_file_path = os.path.join(project_file_dir, file_name)
+                f = open(final_project_file_path, 'w', newline='', encoding='utf-8')
+                writer = csv.DictWriter(f, dialect='excel', fieldnames=reader.fieldnames)
+                writer.writeheader()
+                writer.writerow(row)
+                Task.objects.create(
+                    project=instance,
+                    file_path=final_project_file_path,
+                    copy=i,
+                    type=0,
+                )
+        length = i + 1
+
+    if 1 < rr < 2:
+        num = int((rr - 1) * length)
+        rand_list = random.sample(range(length), num)
+        for k in rand_list:
+            task = Task.objects.get(project=instance, copy=k)
+            task.id = None
+            task.save()
+
 
 
 @receiver(pre_save, sender=Project)

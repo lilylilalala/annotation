@@ -1,8 +1,11 @@
+import csv
+
 from rest_framework import serializers
 
 from tasks.models import Task
+from targets.api.serializers import TargetSerializer
 from annotation.utils import get_filename_ext
-import csv
+
 
 SWITCH_TYPE = (
     ('former', '上一题'),
@@ -14,9 +17,6 @@ class TaskSerializer(serializers.ModelSerializer):
     # text_file_path = serializers.SerializerMethodField(read_only=True)
     project_type = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
-    target_name = serializers.SerializerMethodField(read_only=True)
-    target_entity = serializers.SerializerMethodField(read_only=True)
-    target_description = serializers.SerializerMethodField(read_only=True)
     text_content = serializers.SerializerMethodField(read_only=True)
     contributor_name = serializers.SerializerMethodField(read_only=True)
     previous_id = serializers.SerializerMethodField(read_only=True)
@@ -29,9 +29,6 @@ class TaskSerializer(serializers.ModelSerializer):
             'project',
             'project_type',
             'target',
-            'target_name',
-            'target_entity',
-            'target_description',
             'text_content',
             'label',
             'contributor',
@@ -50,16 +47,8 @@ class TaskSerializer(serializers.ModelSerializer):
         return obj.project.project_type
 
     def get_target(self, obj):
-        return obj.project.project_target.id
-
-    def get_target_name(self, obj):
-        return obj.project.project_target.name
-
-    def get_target_entity(self, obj):
-        return obj.project.project_target.entity
-
-    def get_target_description(self, obj):
-        return obj.project.project_target.description
+        target = obj.project.project_target
+        return TargetSerializer(target).data
 
     def get_text_content(self, obj):
         path = obj.file_path
