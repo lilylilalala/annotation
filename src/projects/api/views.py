@@ -257,27 +257,16 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
         return project
 
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        if project.verify_status != 'verifying':
+            return Response({"detail": "Not allowed here"}, status=400)
+        project.verify_status = request.data['verify_status']
+        project.save()
+        return self.get(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        if instance.verify_status == 'verifying':
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-
-            if getattr(instance, '_prefetched_objects_cache', None):
-                instance._prefetched_objects_cache = {}
-
-            return Response(serializer.data)
-        elif instance:
-            return Response({"message": "Verification is not allowed"}, status=400)
-        else:
-            return Response({"message": "Project not exists"}, status=400)
+        return self.put(request, *args, **kwargs)
 
     def perform_update(self, serializer):
         serializer.save(verify_staff=self.request.user)

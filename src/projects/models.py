@@ -7,17 +7,19 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.contrib.auth import get_user_model
 from django.core.files.storage import FileSystemStorage
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from annotation.utils import get_filename_ext, random_string_generator
 from targets.models import Target
-
+from tags.models import Tag
+from quizzes.models import Quiz
 
 User = get_user_model()
 
 
 PROJECT_TYPE = (
+    ('DataClassification', '数据分类'),
     ('TextClassification', '文本分类'),
-    ('ImageClassification', '图像分类'),
     ('KeywordRecognition', '关键词识别'),
     ('EntityRecognition', '实体识别'),
 )
@@ -42,11 +44,21 @@ def upload_project_file_path(instance, filename):
 
 class Project(models.Model):
     name = models.CharField(max_length=128, default='unnamed_project')
-    tag = models.CharField(max_length=255, blank=True, null=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_projects')
     project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors_char = models.CharField(max_length=255, blank=True, default='')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
+    inspector = models.ForeignKey(User, blank=True, null=True, related_name='inspected_projects')
+    quiz = models.ForeignKey(Quiz, blank=True, null=True, related_name='related_projects')
+    accuracy_requirement = models.DecimalField(
+        max_digits=2, decimal_places=1, default=0.0,
+        validators=[MinValueValidator(0), MaxValueValidator(1)]
+    )
+    repetition_rate = models.DecimalField(
+        max_digits=2, decimal_places=1, default=1.0,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
     description = models.TextField(blank=True)
     verify_status = models.CharField(max_length=255, default='unreleased', choices=VERIFY_STATUS_TYPE)
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
@@ -96,7 +108,7 @@ class Project(models.Model):
 
     @property
     def is_completed(self):
-        if self.task_set.all().filter(label=''):
+        if self.task_set.all().filter(label='') or self.quantity == 0:
             return False
         return True
 
@@ -104,10 +116,9 @@ class Project(models.Model):
     def progress(self):
         num_of_tasks = self.task_set.count()
         completed = self.task_set.all().exclude(label='').count()
-        try:
+        if self.quantity != 0:
             return '%d%%' % (completed/num_of_tasks*100)
-        except:
-            return '0%'
+        return '0%'
 
     def update_contributors(self):
         for contributor in self.contributors.all():
