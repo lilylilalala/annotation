@@ -40,4 +40,5 @@ urlpatterns = [
     url(r'^api/tasks/', include('tasks.api.urls', namespace='api-tasks')),
     url(r'^api/targets/', include('targets.api.urls', namespace='api-targets')),
     url(r'^api/tags/', include('tags.api.urls', namespace='api-tags')),
+    url(r'^api/quizzes/', include('quizzes.api.urls', namespace='api-quizzes')),
 ]

@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'tasks',
     'targets',
     'tags',
+    'quizzes',
+    'grades',
 ]
 
 MIDDLEWARE = [
@@ -141,6 +143,17 @@ MEDIA_URL = 'http://10.1.62.101/media/'
 
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 
+# Quiz files
+
+QUIZ_URL = 'http://10.1.62.101/media/quiz/'
+
+QUIZ_ROOT = os.path.join(MEDIA_ROOT, 'quiz')
+
+# Label files
+
+LABEL_URL = 'http://10.1.62.101/media/quiz/label/'
+
+LABEL_ROOT = os.path.join(QUIZ_ROOT, 'label')
 
 # Result files
 
