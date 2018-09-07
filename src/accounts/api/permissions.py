@@ -44,6 +44,15 @@ class IsContributorOrReadOnly(permissions.BasePermission):
         return request.user in obj.project.contributors.all()
 
 
+class IsInspectorOrReadOnly(permissions.BasePermission):
+    message = 'You must be the inspector of this content to change.'
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user == obj.project.inspector
+
+
 class IsOwner(permissions.BasePermission):
     """
     Object-level permission to only allow owners of an object to edit it.
