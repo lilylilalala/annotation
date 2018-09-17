@@ -1,14 +1,14 @@
+import os
+import csv
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
-from rest_framework import generics, mixins, permissions, status
-from annotation.utils import get_filename_ext
-import os
-import csv
+from rest_framework import generics, mixins, permissions
 
-from projects.models import Project
+from projects.models import Project, Status
 from .serializers import (
     ProjectSerializer,
     ProjectInlineUserSerializer,
@@ -17,7 +17,11 @@ from .serializers import (
     ProjectReleaseSerializer,
     ProjectResultURLSerializer,
 )
-from tasks.api.serializers import TaskResultSerializer
+from tasks.api.serializers import (
+    TaskResultSerializer,
+    ContributeResultSerializer,
+    InspectResultSerializer,
+)
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 from accounts.api.users.serializers import UserInlineSerializer, EditContributorsSerializer
 
@@ -35,16 +39,12 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ProjectSerializer
-
+    queryset = Project.objects.filter(private=False, status='answering')
     passed_id = None
+
     search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
     filter_fields = ('project_type',)
-
-    def get_queryset(self, *args, **kwargs):
-        project_id = [x.id for x in Project.objects.filter(private=False) if x.project_status == 'in progress']
-        projects = Project.objects.filter(pk__in=project_id)
-        return projects
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
@@ -75,7 +75,7 @@ class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
     def validate_status(self):
         project_id = self.kwargs.get("id", None)
         project = Project.objects.get(id=project_id)
-        if project.verify_status in ['unreleased', 'verification failed']:
+        if project.project_status in ['unreleased', 'failed']:
             return True
 
     def put(self, request, *args, **kwargs):
@@ -113,9 +113,8 @@ class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = Project.objects.get(id=project_id)
-        if project.verify_status in ['unreleased', 'verification failed']:
-            project.verify_status = 'verifying'
-            project.save()
+        if project.project_status in ['unreleased', 'failed']:
+            Project.objects.filter(id=project.id).update(status='verifying')
             return self.get(self, request, *args, **kwargs)
         else:
             return Response({"detail": "Not allowed here"}, status=400)
@@ -236,8 +235,9 @@ class ProjectVerifyListView(generics.ListAPIView):
 
     search_fields = ('project_type', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
-    filter_fields = ('verify_status',)
-    queryset = Project.objects.exclude(verify_status='unreleased')
+    filter_fields = ('status',)
+
+    queryset = Project.objects.exclude(status='unreleased')
 
 
 class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
@@ -259,10 +259,13 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
-        if project.verify_status != 'verifying':
+        if project.project_status != 'verifying':
             return Response({"detail": "Not allowed here"}, status=400)
-        project.verify_status = request.data['verify_status']
-        project.save()
+        verify_status = request.data['verify_status']
+        if verify_status == 'passed':
+            Project.objects.filter(id=project.id).update(status='answering')
+        else:
+            Project.objects.filter(id=project.id).update(status='failed')
         return self.get(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
@@ -303,33 +306,56 @@ class ProjectResultView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = TaskResultSerializer
 
-    search_fields = ('contributor', 'label')
-    ordering_fields = ('contributor', 'updated')
+    search_fields = ()
+    ordering_fields = ('id', 'updated',)
+    filter_fields = ('label',)
 
     def get_queryset(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
-        return project.task_set.all().exclude(label='')
+        return project.task_set.exclude(label='')
 
 
-class ProjectMyResultView(generics.ListAPIView):
+class ProjectMyContributionView(generics.ListAPIView):
     """
     get:
-        【任务管理】 获取标注人已答过的题目
+        【参与任务】 获取标注人已答过的题目
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    serializer_class = TaskResultSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ContributeResultSerializer
 
-    search_fields = ('contributor', 'label')
-    ordering_fields = ('contributor', 'created', 'updated')
+    search_fields = ()
+    ordering_fields = ('id', 'created', 'updated',)
+    filter_fields = ('label',)
 
     def get_queryset(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
-        user_id = self.request.user.id
-        if user_id is None:
+        user = self.request.user
+        if user is None:
             return Project.task_set.none()
-        return project.task_set.filter(contributor_id=user_id)
+        return project.contribution_set.filter(contributor=user)
+
+
+class ProjectMyInspectionView(generics.ListAPIView):
+    """
+    get:
+        【检查任务】 获取质检人已答过的题目
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InspectResultSerializer
+
+    search_fields = ()
+    ordering_fields = ('id', 'created', 'updated',)
+    filter_fields = ('label',)
+
+    def get_queryset(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        user = self.request.user
+        if user is None:
+            return Project.task_set.none()
+        return project.inspection_set.filter(inspector=user)
 
 
 class ProjectResultDownloadView(generics.RetrieveAPIView):
@@ -366,10 +392,8 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
-        if project.is_completed:
-            if project.result_file:
-                pass
-            else:
+        if project.project_status == 'completed':
+            if not project.result_file:
                 self.create_result_file(project)
             serializer = self.get_serializer(project)
             return Response(serializer.data)

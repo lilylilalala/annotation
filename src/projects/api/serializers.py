@@ -6,16 +6,9 @@ from targets.api.serializers import TargetSerializer
 from tags.api.serializers import TagBriefSerializer
 
 
-PROJECT_TYPE = {
-    'DataClassification': '数据分类',
-    'TextClassification': '文本分类',
-    'KeywordRecognition': '关键词识别',
-    'EntityRecognition': '实体识别',
-}
-
-VERIFY_STATUS_TYPE = (
-    ('verification succeed', '审核通过'),
-    ('verification failed', '审核未通过'),
+VERIFY_CHOICE = (
+    ('passed', '审核通过'),
+    ('failed', '审核不通过'),
 )
 
 
@@ -24,8 +17,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_type_name = serializers.SerializerMethodField(read_only=True)
     quiz_name = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.SerializerMethodField(read_only=True)
-    project_status = serializers.SerializerMethodField(read_only=True)
-    is_completed = serializers.SerializerMethodField(read_only=True)
+    copies = serializers.SerializerMethodField(read_only=True)
     progress = serializers.SerializerMethodField(read_only=True)
     tags_detail = serializers.SerializerMethodField(read_only=False)
     target = serializers.SerializerMethodField(read_only=True)
@@ -50,13 +42,11 @@ class ProjectSerializer(serializers.ModelSerializer):
             'accuracy_requirement',
             'repetition_rate',
             'description',
-            'verify_status',
             'status',
             'private',
             'deadline',
             'quantity',
-            'project_status',
-            'is_completed',
+            'copies',
             'progress',
             'project_target',
             'target',
@@ -65,7 +55,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'my_quantity',
             'uri',
         ]
-        read_only_fields = ['founder', 'verify_status', 'status', 'contributors']
+        read_only_fields = ['founder', 'status', 'contributors']
 
     def validate_tags(self, value):
         if len(value) > 3:
@@ -83,10 +73,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         if not quiz and accuracy_requirement != 0.0:
             raise serializers.ValidationError("Accuracy Requirement should be 0.0 if no quiz.")
 
-        project_type = data.get('project_type')
+        project_type_obj = data.get('project_type')
+        target_type = project_type_obj.type
         repetition_rate = data.get('repetition_rate')
         inspector = data.get('inspector')
-        if project_type not in ['DataClassification', 'TextClassification']:
+        if target_type.name != 'Classification':
             if inspector or repetition_rate != 1.0:
                 raise serializers.ValidationError(
                     "Only Classification projects may have a inspector or a repetition rate unequal to 1.0."
@@ -103,7 +94,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return api_reverse('api-projects:detail', kwargs={'id': obj.id}, request=request)
 
     def get_project_type_name(self, obj):
-        return PROJECT_TYPE[obj.project_type]
+        return obj.project_type.name
 
     def get_quiz_name(self, obj):
         if obj.quiz:
@@ -114,11 +105,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_quantity(self, obj):
         return obj.quantity
 
-    def get_project_status(self, obj):
-        return obj.project_status
-
-    def get_is_completed(self, obj):
-        return obj.is_completed
+    def get_copies(self, obj):
+        return obj.copies
 
     def get_progress(self, obj):
         return obj.progress
@@ -138,8 +126,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_my_quantity(self, obj):
         request = self.context.get('request')
-        user_id = request.user.id
-        return obj.task_set.filter(contributor=user_id).count()
+        user = request.user
+        if obj.quantity != 0:
+            return obj.contribution_set.filter(contributor=user).exclude(label='').count()
+        return 0
 
 
 class ProjectInlineUserSerializer(ProjectSerializer):
@@ -161,13 +151,11 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'accuracy_requirement',
             'repetition_rate',
             'description',
-            'verify_status',
             'status',
             'private',
             'deadline',
             'quantity',
-            'project_status',
-            'is_completed',
+            'copies',
             'progress',
             'project_target',
             'target',
@@ -176,7 +164,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'my_quantity',
             'uri',
         ]
-        read_only_fields = ['founder', 'verify_status', 'status', 'contributors']
+        read_only_fields = ['founder', 'status', 'contributors']
 
 
 class ProjectReleaseSerializer(ProjectSerializer):
@@ -187,13 +175,13 @@ class ProjectReleaseSerializer(ProjectSerializer):
             'name',
             'founder',
             'description',
-            'verify_status',
+            'status',
         ]
-        read_only_fields = ['name', 'founder', 'description', 'verify_status']
+        read_only_fields = ['name', 'founder', 'description', 'status']
 
 
 class ProjectInlineVerifySerializer(ProjectSerializer):
-    verify_status = serializers.ChoiceField(default='verification succeed', choices=VERIFY_STATUS_TYPE)
+    verify_status = serializers.ChoiceField(default='passed', choices=VERIFY_CHOICE)
 
     class Meta:
         model = Project
@@ -209,7 +197,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'project_file',
             'uri',
         ]
-        read_only_fields = ['name', 'project_type', 'founder', 'description', 'deadline', 'verify_status', 'project_file',]
+        read_only_fields = ['name', 'project_type', 'founder', 'description', 'deadline', 'project_file']
 
 
 class ProjectTargetSerializer(ProjectSerializer):

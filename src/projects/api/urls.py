@@ -11,7 +11,8 @@ from .views import (
     ProjectVerifyDetailView,
     ProjectTargetDetailView,
     ProjectResultView,
-    ProjectMyResultView,
+    ProjectMyContributionView,
+    ProjectMyInspectionView,
     ProjectResultDownloadView,
 )
 
@@ -27,6 +28,7 @@ urlpatterns = [
     url(r'^verify/$', ProjectVerifyListView.as_view(), name='verify-projects-list'),
     url(r'^(?P<id>\d+)/verify/$', ProjectVerifyDetailView.as_view(), name='verify-projects-detail'),
     url(r'^(?P<id>\d+)/result/$', ProjectResultView.as_view(), name='result'),
-    url(r'^(?P<id>\d+)/my_result/$', ProjectMyResultView.as_view(), name='my-result'),
+    url(r'^(?P<id>\d+)/my_contribution/$', ProjectMyContributionView.as_view(), name='my-contribution'),
+    url(r'^(?P<id>\d+)/my_inspection/$', ProjectMyInspectionView.as_view(), name='my-inspection'),
     url(r'^(?P<id>\d+)/download_result/$', ProjectResultDownloadView.as_view(), name='download-result'),
 ]

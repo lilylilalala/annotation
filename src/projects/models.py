@@ -10,26 +10,12 @@ from django.core.files.storage import FileSystemStorage
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from annotation.utils import get_filename_ext, random_string_generator
-from targets.models import Target
+from targets.models import Target, TargetType
 from tags.models import Tag
-from quizzes.models import Quiz
+from quizzes.models import Quiz, QuestionType
+
 
 User = get_user_model()
-
-
-PROJECT_TYPE = (
-    ('DataClassification', '数据分类'),
-    ('TextClassification', '文本分类'),
-    ('KeywordRecognition', '关键词识别'),
-    ('EntityRecognition', '实体识别'),
-)
-
-VERIFY_STATUS_TYPE = (
-    ('unreleased', '未发布'),
-    ('verifying', '审核中'),
-    ('verification succeed', '审核通过'),
-    ('verification failed', '审核未通过'),
-)
 
 
 def upload_project_file_path(instance, filename):
@@ -42,10 +28,21 @@ def upload_project_file_path(instance, filename):
     return final_filename
 
 
+class Status(models.Model):
+    id = models.IntegerField()
+    project_status = models.CharField(max_length=128, primary_key=True)
+    project_status_name = models.CharField(max_length=128)
+    verify_status = models.CharField(max_length=128)
+    verify_status_name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return str(self.project_status)
+
+
 class Project(models.Model):
     name = models.CharField(max_length=128, default='unnamed_project')
     tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_projects')
-    project_type = models.CharField(max_length=128, choices=PROJECT_TYPE)
+    project_type = models.ForeignKey(QuestionType, related_name='related_projects')
     founder = models.ForeignKey(User, related_name='founded_projects')
     contributors_char = models.CharField(max_length=255, blank=True, default='')
     contributors = models.ManyToManyField(User, blank=True, related_name='contributed_projects')
@@ -60,9 +57,8 @@ class Project(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
     description = models.TextField(blank=True)
-    verify_status = models.CharField(max_length=255, default='unreleased', choices=VERIFY_STATUS_TYPE)
     verify_staff = models.ForeignKey(User, blank=True, null=True, related_name='verified_projects')
-    status = models.CharField(max_length=255, blank=True)
+    status = models.ForeignKey(Status, default='unreleased')
     private = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
     project_target = models.ForeignKey(Target)
@@ -82,7 +78,7 @@ class Project(models.Model):
     )
 
     def __str__(self):
-        return str(self.id) + '_' + self.project_type
+        return str(self.id) + '_' + str(self.project_type)
 
     @property
     def owner(self):
@@ -97,27 +93,23 @@ class Project(models.Model):
         return self.task_set.count()
 
     @property
-    def project_status(self):
-        if self.verify_status == 'verification succeed':
-            if self.task_set.all().filter(label=''):
-                return 'in progress'
-            else:
-                return 'completed'
-        else:
-            return self.verify_status
+    def copies(self):
+        return self.contribution_set.count()
 
     @property
-    def is_completed(self):
-        if self.task_set.all().filter(label='') or self.quantity == 0:
-            return False
-        return True
+    def project_status(self):
+        return self.status.project_status
+
+    @property
+    def verify_status(self):
+        return self.status.verify_status
 
     @property
     def progress(self):
-        num_of_tasks = self.task_set.count()
-        completed = self.task_set.all().exclude(label='').count()
-        if self.quantity != 0:
-            return '%d%%' % (completed/num_of_tasks*100)
+        if self.copies != 0:
+            total = self.copies
+            completed = self.contribution_set.exclude(label='').count()
+            return '%d%%' % (completed/total*100)
         return '0%'
 
     def update_contributors(self):
@@ -127,12 +119,6 @@ class Project(models.Model):
         for contributor in contributors_list:
             contributor = User.objects.get(id=int(contributor))
             self.contributors.add(contributor)
-
-
-@receiver(pre_save, sender=Project)
-def status_update_receiver(sender, instance, *args, **kwargs):
-    if instance.project_status:
-        instance.status = instance.project_status
 
 
 @receiver(post_save, sender=Project)
