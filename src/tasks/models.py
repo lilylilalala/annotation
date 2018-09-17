@@ -1,6 +1,7 @@
 import os
 import zipfile
 import random
+from collections import Counter
 
 from django.db import models
 from django.conf import settings
@@ -8,30 +9,18 @@ from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 
-from projects.models import Project
+from projects.models import Project, Status
 from annotation.utils import get_filename_ext, random_string_generator
 import csv
 
 User = get_user_model()
 
-ANSWER_TYPE = (
-    (0, 'Contribute'),
-    (1, 'Check'),
-)
-
 
 class Task(models.Model):
     project = models.ForeignKey(Project)
-    # text_file = models.FileField(
-    #     upload_to=upload_file_path,
-    #     storage=FileSystemStorage(location=settings.MEDIA_ROOT),
-    # )
     copy = models.IntegerField(blank=True, null=True)
     file_path = models.CharField(max_length=255)
     label = models.CharField(max_length=255, blank=True)
-    contributor = models.ForeignKey(User, blank=True, null=True, default=None)
-    type = models.CharField(max_length=128, blank=True, choices=ANSWER_TYPE)
-    created = models.DateTimeField(null=True)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -39,11 +28,36 @@ class Task(models.Model):
         return str(self.project) + '_' + str(self.id)
 
     @property
-    def contributor_name(self):
-        if self.contributor:
-            return self.contributor.full_name
-        else:
-            return None
+    def is_done(self):
+        if self.contribution_set.filter(label=''):
+            return False
+        return True
+
+
+class Contribution(models.Model):
+    project = models.ForeignKey(Project)
+    task = models.ForeignKey(Task)
+    label = models.CharField(max_length=255, blank=True)
+    contributor = models.ForeignKey(User, blank=True, null=True)
+    created = models.DateTimeField(null=True)
+    updated = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.task) + '_' + str(self.id)
+
+
+class Inspection(models.Model):
+    project = models.ForeignKey(Project)
+    task = models.OneToOneField(Task)
+    label = models.CharField(max_length=255, blank=True)
+    inspector = models.ForeignKey(User, blank=True, null=True)
+    created = models.DateTimeField(null=True)
+    updated = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.task) + '_' + str(self.id)
 
 
 def create_tasks(instance):
@@ -52,7 +66,6 @@ def create_tasks(instance):
     project_file_dir = os.path.join(settings.MEDIA_ROOT, name)
     os.mkdir(project_file_dir)
     rr = instance.repetition_rate
-    length = 0
 
     if ext == '.zip':
         zf = zipfile.ZipFile(project_file_path, 'r')
@@ -63,15 +76,12 @@ def create_tasks(instance):
         os.rename(project_file_path, final_project_file_path)
         file_name_list = os.listdir(final_project_file_path)
 
-        for i, file_name in enumerate(file_name_list):
-            for j in range(int(rr)):
-                Task.objects.create(
-                    project=instance,
-                    file_path=os.path.join(final_project_file_path, file_name),
-                    copy=i,
-                    type=0,
-                )
-        length = i + 1
+        for file_name in file_name_list:
+            Task.objects.create(
+                project=instance,
+                file_path=os.path.join(final_project_file_path, file_name),
+                copy=int(rr),
+            )
 
     elif ext == '.csv':
         inner_dir_name = '%s' % instance.name
@@ -79,30 +89,30 @@ def create_tasks(instance):
         os.mkdir(project_file_dir)
         reader = csv.DictReader(open(project_file_path, encoding='utf-8'))
 
-        for i, row in enumerate(reader):
-            for j in range(int(rr)):
-                file_name = '%s.csv' % row['\ufeffid']
-                final_project_file_path = os.path.join(project_file_dir, file_name)
-                f = open(final_project_file_path, 'w', newline='', encoding='utf-8')
-                writer = csv.DictWriter(f, dialect='excel', fieldnames=reader.fieldnames)
-                writer.writeheader()
-                writer.writerow(row)
-                Task.objects.create(
-                    project=instance,
-                    file_path=final_project_file_path,
-                    copy=i,
-                    type=0,
-                )
-        length = i + 1
+        for row in reader:
+            file_name = '%s.csv' % row['\ufeffid']
+            final_project_file_path = os.path.join(project_file_dir, file_name)
+            f = open(final_project_file_path, 'w', newline='', encoding='utf-8')
+            writer = csv.DictWriter(f, dialect='excel', fieldnames=reader.fieldnames)
+            writer.writeheader()
+            writer.writerow(row)
+            Task.objects.create(
+                project=instance,
+                file_path=final_project_file_path,
+                copy=int(rr),
+            )
 
     if 1 < rr < 2:
+        length = instance.task_set.count()
         num = int((rr - 1) * length)
-        rand_list = random.sample(range(length), num)
-        for k in rand_list:
-            task = Task.objects.get(project=instance, copy=k)
-            task.id = None
-            task.save()
+        ids = instance.task_set.values_list("id", flat=True)
+        rand_list = random.sample(set(ids), num)
+        for i in rand_list:
+            Task.objects.filter(id=i).update(copy=2)
 
+    for task in Task.objects.filter(project=instance):
+        for copy in range(task.copy):
+            Contribution.objects.create(project=instance, task=task)
 
 
 @receiver(pre_save, sender=Project)
@@ -125,7 +135,39 @@ def project_file_post_receiver(sender, instance, created, *args, **kwargs):
         create_tasks(instance)
 
 
+@receiver(post_save, sender=Contribution)
+def contribution_updated_receiver(sender, instance, *args, **kwargs):
+    task = instance.task
+    if task.is_done:
+        labels = task.contribution_set.values_list('label', flat=True)
+        if len(set(labels)) == 1:
+            task.label = instance.label
+        else:
+            top_labels = Counter(labels).most_common(2)
+            if top_labels[0][1] != top_labels[1][1]:
+                task.label = top_labels[0][0]
+            else:
+                Inspection.objects.create(task=task, project=instance.project)
+        task.save()
+
+
+@receiver(post_save, sender=Inspection)
+def inspection_updated_receiver(sender, instance, *args, **kwargs):
+    task = instance.task
+    if instance.label:
+        task.label = instance.label
+        task.save()
+
+
 @receiver(post_save, sender=Task)
 def task_updated_receiver(sender, instance, *args, **kwargs):
     project = instance.project
-    Project.objects.filter(id=project.id).update(status=project.project_status)
+    if project.progress == '100%':
+        if project.task_set.filter(label=''):
+            Project.objects.filter(id=project.id).update(status='checking')
+        else:
+            project.status = Status(pk='completed')
+            project.save()
+
+
+
