@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import generics, mixins, permissions
 
-from targets.models import Target
-from .serializers import TargetSerializer
+from targets.models import Target, TargetType
+from .serializers import TargetSerializer, TargetTypeSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
 
 
@@ -65,3 +65,13 @@ class TargetAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, gen
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class TargetTypeAPIView(generics.ListAPIView):
+    """
+    get:
+        【目标管理】 获取目标类型列表
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = TargetTypeSerializer
+    queryset = TargetType.objects.all()

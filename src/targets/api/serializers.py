@@ -1,13 +1,6 @@
 from rest_framework import serializers
 
-from targets.models import Target
-
-
-TARGET_TYPE = {
-    '0': '类目目标',
-    '1': '关键字目标',
-    '2': '实体目标',
-}
+from targets.models import Target, TargetType
 
 
 class TargetSerializer(serializers.ModelSerializer):
@@ -27,4 +20,15 @@ class TargetSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def get_type_name(self, obj):
-        return TARGET_TYPE[str(obj.type)]
+        return obj.type.name
+
+
+class TargetTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TargetType
+        fields = [
+            'id',
+            'name',
+            'chinese_name',
+        ]
