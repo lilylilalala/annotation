@@ -23,6 +23,10 @@ class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = QuizSerializer
     queryset = Quiz.objects.all()
 
+    search_fields = ('quiz_type', 'founder__email')
+    ordering_fields = ('quiz_type', 'timestamp')
+    filter_fields = ('quiz_type',)
+
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 

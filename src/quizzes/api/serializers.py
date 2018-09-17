@@ -1,7 +1,6 @@
 import csv
 
 from rest_framework import serializers
-from rest_framework.reverse import reverse as api_reverse
 
 from quizzes.models import Quiz, Question, Answer
 from targets.api.serializers import TargetSerializer
@@ -10,7 +9,8 @@ from annotation.utils import get_filename_ext
 
 
 class QuizSerializer(serializers.ModelSerializer):
-    tags_detail = serializers.SerializerMethodField(read_only=False)
+    tags_detail = serializers.SerializerMethodField(read_only=True)
+    quiz_type_name = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -20,6 +20,8 @@ class QuizSerializer(serializers.ModelSerializer):
             'name',
             'tags',
             'tags_detail',
+            'quiz_type',
+            'quiz_type_name',
             'quiz_target',
             'target',
             'quiz_file',
@@ -34,6 +36,9 @@ class QuizSerializer(serializers.ModelSerializer):
     def get_tags_detail(self, obj):
         tags_queryset = obj.tags
         return TagBriefSerializer(tags_queryset, many=True).data
+
+    def get_quiz_type_name(self, obj):
+        return obj.quiz_type.name
 
     def get_target(self, obj):
         target = obj.quiz_target

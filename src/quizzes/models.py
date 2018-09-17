@@ -10,7 +10,7 @@ from django.db.models.signals import post_save
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from annotation.utils import get_filename_ext, random_string_generator
-from targets.models import Target
+from targets.models import Target, TargetType
 from tags.models import Tag
 
 
@@ -27,9 +27,19 @@ def upload_quiz_file_path(instance, filename):
     return final_filename
 
 
+class QuestionType(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    chinese_name = models.CharField(max_length=128, unique=True)
+    type = models.ForeignKey(TargetType, related_name='related_question_types')
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Quiz(models.Model):
     name = models.CharField(max_length=128, unique=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_quizzes')
+    quiz_type = models.ForeignKey(QuestionType)
     quiz_target = models.ForeignKey(Target)
     quiz_file = models.FileField(
         upload_to=upload_quiz_file_path,
