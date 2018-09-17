@@ -130,18 +130,14 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
 
     search_fields = ('name', 'project_type')
     ordering_fields = ('name', 'project_type', 'timestamp')
-    filter_fields = ('project_type',)
+    filter_fields = ('project_type', 'status')
 
     def get_queryset(self, *args, **kwargs):
         user_id = self.request.user.id
         if user_id is None:
             return Project.objects.none()
         user = User.objects.get(id=user_id)
-        projects = user.contributed_projects.filter(verify_status='verification succeed')
-        project_status = self.request.GET.get("project_status", None)
-        if project_status:
-            project_id = [x.id for x in projects if x.project_status == project_status]
-            return projects.filter(pk__in=project_id)
+        projects = user.contributed_projects.filter(status__in=['answering', 'checking', 'completed'])
         return projects
 
     def post(self, request, *args, **kwargs):

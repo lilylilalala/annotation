@@ -1,16 +1,20 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse as api_reverse
 
-from projects.api.serializers import ProjectInlineUserSerializer
-
+from grades.models import Grade
+from tags.models import Tag
 
 User = get_user_model()
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    grade = serializers.SerializerMethodField(read_only=True)
     uri = serializers.SerializerMethodField(read_only=True)
-    project = serializers.SerializerMethodField(read_only=True)
+    founded_projects = serializers.SerializerMethodField(read_only=True)
+    contributed_projects = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -18,32 +22,31 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'full_name',
+            'grade',
             'uri',
-            'project',
+            'founded_projects',
+            'contributed_projects',
         ]
+
+    def get_grade(self, obj):
+        grade_dict = {}
+        grade_set = Grade.objects.filter(user=obj)
+        tags = set(grade_set.values_list('tag', flat=True))
+        for tag in tags:
+            total_good = grade_set.filter(tag=tag).aggregate(Sum('good_labels'))['good_labels__sum']
+            total = grade_set.filter(tag=tag).aggregate(Sum('labels'))['labels__sum']
+            grade_dict[Tag.objects.get(id=tag).name] = total_good/total
+        return grade_dict
 
     def get_uri(self, obj):
         request = self.context.get('request')
         return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)
 
-    def get_project(self, obj):
-        request = self.context.get('request')
-        limit = 10
-        if request:
-            limit_query = request.GET.get('limit')
-            try:
-                limit = int(limit_query)
-            except:
-                pass
-        founded_qs = obj.founded_projects.all().order_by('-timestamp')
-        contributed_qs = obj.contributed_projects.all().order_by('-timestamp')
-        data = {
-            'founded_projects': ProjectInlineUserSerializer(
-                founded_qs[:limit], context={'request': request}, many=True).data,
-            'contributed_projects': ProjectInlineUserSerializer(
-                contributed_qs[:limit], context={'request': request}, many=True).data,
-        }
-        return data
+    def get_founded_projects(self, obj):
+        return obj.founded_projects.values_list('id', flat=True)
+
+    def get_contributed_projects(self, obj):
+        return obj.contributed_projects.values_list('id', flat=True)
 
 
 class UserDetailUpdateSerializer(serializers.ModelSerializer):
