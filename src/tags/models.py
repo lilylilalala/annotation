@@ -13,7 +13,7 @@ TAG_TYPE = (
 
 class Tag(models.Model):
     name = models.CharField(max_length=128, unique=True)
-    parent = models.ForeignKey('self', null=True)
+    parent = models.ForeignKey('self', null=True, related_name='child_tags')
     level = models.IntegerField(choices=TAG_TYPE, default=1)
     description = models.TextField(blank=True)
     updated = models.DateTimeField(auto_now=True)
