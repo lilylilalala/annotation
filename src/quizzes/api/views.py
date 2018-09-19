@@ -7,6 +7,7 @@ from .serializers import (
     QuizSerializer,
     QuestionSerializer,
     AnswerSerializer,
+    QuizRecordSerializer,
 )
 from accounts.api.permissions import IsOwner
 
@@ -14,10 +15,10 @@ from accounts.api.permissions import IsOwner
 class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     """
     get:
-        【任务管理】 获取测试题列表
+        【测试题管理】 获取测试题列表
 
     post:
-        【任务管理】 新建测试题
+        【测试题管理】 新建测试题
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = QuizSerializer
@@ -37,7 +38,7 @@ class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
 class QuizAPIDetailView(generics.RetrieveAPIView):
     """
     get:
-        【任务管理】 根据id，获取测试题详情
+        【测试题管理】 根据id，获取测试题详情
 
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -49,7 +50,7 @@ class QuizAPIDetailView(generics.RetrieveAPIView):
 class QuestionAPIView(generics.ListAPIView):
     """
     get:
-        【任务管理】 获取测试题详情，只有创建测试题的人可以看
+        【测试题管理】 获取测试题详情，只有创建测试题的人可以看
     """
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = QuestionSerializer
@@ -104,3 +105,21 @@ class AnswerAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
     def patch(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+
+class QuizRecordView(generics.ListAPIView):
+    """
+    get:
+        【测试题管理】 获取一个测试题的答题记录
+    """
+
+    permission_classes = [permissions.IsAuthenticated, ]
+    serializer_class = QuizRecordSerializer
+
+    ordering_fields = ('accuracy', 'updated', 'status')
+    filter_fields = ('status',)
+
+    def get_queryset(self, *args, **kwargs):
+        quiz_id = self.kwargs.get("id", None)
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        return quiz.quizcontributor_set.all()
