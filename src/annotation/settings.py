@@ -12,8 +12,20 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import pymysql
+import djcelery
 
 from annotation.restconf.main import *
+
+
+# django-celery
+djcelery.setup_loader()
+
+BROKER_URL = 'amqp://guest@localhost//'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+
+CELERY_IMPORTS = (
+    'tasks.tasks',
+)
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -43,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'djcelery',
     'accounts',
     'projects',
     'tasks',

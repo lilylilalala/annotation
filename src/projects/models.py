@@ -108,7 +108,7 @@ class Project(models.Model):
     def progress(self):
         if self.copies != 0:
             total = self.copies
-            completed = self.contribution_set.exclude(label='').count()
+            completed = self.contribution_set.filter(committed=True).count()
             return '%d%%' % (completed/total*100)
         return '0%'
 
@@ -123,7 +123,6 @@ class Project(models.Model):
 
 @receiver(post_save, sender=Project)
 def project_updated_receiver(sender, instance, *args, **kwargs):
-    if instance.contributors_char:
-        instance.update_contributors()
+    instance.update_contributors()
 
 

@@ -65,6 +65,11 @@ class TaskContributeView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             instance = get_object_or_404(Contribution, id=contribution_id)
             instance.label = request.data['label']
             instance.contributor = request.user
+            try:
+                if request.data['committed'] == 'true':
+                    instance.committed = True
+            except:
+                pass
             if not instance.created:
                 instance.created = timezone.now()
             instance.save()
@@ -107,13 +112,18 @@ class TaskInspectView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             if instance:
                 serializer = self.get_serializer(instance)
                 return Response(serializer.data)
-            return Response({"message": "Project Completed"}, status=200)
+            return Response({"message": "Inspection Completed"}, status=200)
 
     def put(self, request, *args, **kwargs):
         if request.data['label']:
             instance = self.get_object()
             instance.label = request.data['label']
             instance.inspector = request.user
+            try:
+                if request.data['committed'] == 'true':
+                    instance.committed = True
+            except:
+                pass
             if not instance.created:
                 instance.created = timezone.now()
             instance.save()

@@ -7,12 +7,6 @@ from targets.api.serializers import TargetSerializer
 from annotation.utils import get_filename_ext
 
 
-SWITCH_TYPE = (
-    ('former', '上一题'),
-    ('next', '下一题'),
-)
-
-
 class TaskContributeSerializer(serializers.ModelSerializer):
     project_type = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
@@ -31,13 +25,15 @@ class TaskContributeSerializer(serializers.ModelSerializer):
             'text_content',
             'contributor',
             'contributor_name',
+            'created',
             'updated',
             'previous_id',
             'next_id',
             'contribution_id',
+            'committed',
             'label',
         ]
-        read_only_fields = ['id', 'contributor']
+        read_only_fields = ['id', 'contributor', 'created']
 
     def get_project_type(self, obj):
         return obj.project.project_type.name
@@ -91,12 +87,14 @@ class TaskContributeUpdateSerializer(TaskContributeSerializer):
             'text_content',
             'contributor',
             'contributor_name',
+            'created',
             'updated',
             'previous_id',
             'next_id',
+            'committed',
             'label',
         ]
-        read_only_fields = ['id', 'contributor']
+        read_only_fields = ['id', 'contributor', 'created', 'committed']
 
 
 class TaskInspectSerializer(serializers.ModelSerializer):
@@ -115,6 +113,7 @@ class TaskInspectSerializer(serializers.ModelSerializer):
             'label',
             'inspector',
             'inspector_name',
+            'committed',
             'created',
             'updated',
         ]
