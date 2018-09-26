@@ -23,11 +23,9 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     passed_id = None
     search_fields = ('name', 'type', )
     ordering_fields = ('updated', 'type')
+    filter_fields = ('type',)
 
     def get_queryset(self, *args, **kwargs):
-        target_type = self.request.GET.get("type", None)
-        if target_type:
-            return Target.objects.filter(user=self.request.user, type=target_type)
         return Target.objects.filter(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
@@ -40,7 +38,7 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
 class TargetAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.RetrieveAPIView):
     """
     get:
-        【目标管理】 获取目标详情
+        【目标管理】 获取目标详情（仅发起人可见）
 
     put:
         【目标管理】 编辑目标
@@ -54,8 +52,10 @@ class TargetAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, gen
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = TargetSerializer
-    queryset = Target.objects.all()
     lookup_field = 'id'
+
+    def get_queryset(self, *args, **kwargs):
+        return Target.objects.filter(user=self.request.user)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
