@@ -66,8 +66,8 @@ class TaskContributeView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             instance.label = request.data['label']
             instance.contributor = request.user
             try:
-                if request.data['committed'] == 'true':
-                    instance.committed = True
+                if request.data['submitted'] == 'true':
+                    instance.submitted = True
             except:
                 pass
             if not instance.created:
@@ -120,8 +120,8 @@ class TaskInspectView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             instance.label = request.data['label']
             instance.inspector = request.user
             try:
-                if request.data['committed'] == 'true':
-                    instance.committed = True
+                if request.data['submitted'] == 'true':
+                    instance.submitted = True
             except:
                 pass
             if not instance.created:

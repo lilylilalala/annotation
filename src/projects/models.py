@@ -108,7 +108,7 @@ class Project(models.Model):
     def progress(self):
         if self.copies != 0:
             total = self.copies
-            completed = self.contribution_set.filter(committed=True).count()
+            completed = self.contribution_set.filter(submitted=True).count()
             return '%d%%' % (completed/total*100)
         return '0%'
 

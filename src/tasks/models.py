@@ -16,7 +16,7 @@ from projects.models import Project, Status
 from annotation.utils import get_filename_ext, random_string_generator
 
 
-from tasks.tasks import calling_commit
+from tasks.tasks import calling_submit
 
 
 User = get_user_model()
@@ -35,7 +35,7 @@ class Task(models.Model):
 
     @property
     def is_done(self):
-        if self.contribution_set.filter(committed=False):
+        if self.contribution_set.filter(submitted=False):
             return False
         return True
 
@@ -45,7 +45,7 @@ class Contribution(models.Model):
     task = models.ForeignKey(Task)
     label = models.CharField(max_length=255, blank=True)
     contributor = models.ForeignKey(User, blank=True, null=True)
-    committed = models.BooleanField(default=False)
+    submitted = models.BooleanField(default=False)
     created = models.DateTimeField(null=True)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -59,7 +59,7 @@ class Inspection(models.Model):
     task = models.OneToOneField(Task)
     label = models.CharField(max_length=255, blank=True)
     inspector = models.ForeignKey(User, blank=True, null=True)
-    committed = models.BooleanField(default=False)
+    submitted = models.BooleanField(default=False)
     created = models.DateTimeField(null=True)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -144,10 +144,10 @@ def project_file_post_receiver(sender, instance, created, *args, **kwargs):
 
 
 @receiver(post_save, sender=Contribution)
-def contribution_commit_receiver(sender, instance, *args, **kwargs):
-    if instance.label and not instance.committed:
+def contribution_submit_receiver(sender, instance, *args, **kwargs):
+    if instance.label and not instance.submitted:
         date = datetime.utcnow() + timedelta(seconds=5)  # days=1
-        calling_commit.apply_async((instance,), eta=date)
+        calling_submit.apply_async((instance,), eta=date)
 
 
 @receiver(post_save, sender=Contribution)
@@ -167,16 +167,16 @@ def contribution_updated_receiver(sender, instance, *args, **kwargs):
 
 
 @receiver(post_save, sender=Inspection)
-def inspection_commit_receiver(sender, instance, *args, **kwargs):
-    if instance.label and not instance.committed:
+def inspection_submit_receiver(sender, instance, *args, **kwargs):
+    if instance.label and not instance.submitted:
         date = datetime.utcnow() + timedelta(seconds=5)  # days=1
-        calling_commit.apply_async((instance,), eta=date)
+        calling_submit.apply_async((instance,), eta=date)
 
 
 @receiver(post_save, sender=Inspection)
 def inspection_updated_receiver(sender, instance, *args, **kwargs):
     task = instance.task
-    if instance.label and instance.committed:
+    if instance.label and instance.submitted:
         task.label = instance.label
         task.save()
 

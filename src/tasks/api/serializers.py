@@ -30,7 +30,7 @@ class TaskContributeSerializer(serializers.ModelSerializer):
             'previous_id',
             'next_id',
             'contribution_id',
-            'committed',
+            'submitted',
             'label',
         ]
         read_only_fields = ['id', 'contributor', 'created']
@@ -91,10 +91,10 @@ class TaskContributeUpdateSerializer(TaskContributeSerializer):
             'updated',
             'previous_id',
             'next_id',
-            'committed',
+            'submitted',
             'label',
         ]
-        read_only_fields = ['id', 'contributor', 'created', 'committed']
+        read_only_fields = ['id', 'contributor', 'created', 'submitted']
 
 
 class TaskInspectSerializer(serializers.ModelSerializer):
@@ -113,7 +113,7 @@ class TaskInspectSerializer(serializers.ModelSerializer):
             'label',
             'inspector',
             'inspector_name',
-            'committed',
+            'submitted',
             'created',
             'updated',
         ]
