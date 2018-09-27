@@ -13,23 +13,25 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('tags', '0001_initial'),
         ('projects', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Task',
+            name='Grade',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('copy', models.IntegerField(blank=True, null=True)),
-                ('file_path', models.CharField(max_length=255)),
-                ('label', models.CharField(blank=True, max_length=255)),
-                ('type', models.CharField(blank=True, choices=[(0, 'Contribute'), (1, 'Check')], max_length=128)),
-                ('created', models.DateTimeField(null=True)),
+                ('good_labels', models.IntegerField(blank=True, null=True)),
+                ('labels', models.IntegerField(blank=True, null=True)),
+                ('total_good_labels', models.IntegerField(blank=True, null=True)),
+                ('total_labels', models.IntegerField(blank=True, null=True)),
+                ('final_grade', models.CharField(blank=True, max_length=255)),
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('contributor', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
                 ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='projects.Project')),
+                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tags.Tag')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
