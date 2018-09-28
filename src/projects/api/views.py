@@ -399,3 +399,42 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
             return Response(serializer.data)
         else:
             return Response({"message": "Project is not completed"}, status=400)
+
+
+class InspectorsListView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【检查任务】 获取当前任务的标注人
+    put:
+        【更新检查人】 根据提交的user_id，通过put方法更新project的检查人
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = EditContributorsSerializer
+
+    search_fields = ('email', 'full_name')
+    ordering_fields = ('email', 'full_name')
+
+    def get_object(self, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
+        if project.inspector:
+            return project.inspector
+        return User.objects.none()
+
+    def put(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = Project.objects.get(id=project_id)
+        user_id = request.data.get("user_id")
+        user = get_object_or_404(User, id=user_id)
+        project_type = project.project_type.type.name
+        if project_type == 'Classification':
+            if project.repetition_rate != 1.0:
+                if user == project.inspector:
+                    return Response({"message": "User is already in the project!"}, status=400)
+                else:
+                    Project.objects.filter(id=project_id).update(inspector=user)
+                    return Response({"message": "User has updated in the project!"}, status=200)
+            else:
+                return Response({"message": "No inspector since repetition rate is 1.0"}, status=400)
+        else:
+            return Response({"message": "Only Classification projects have a inspector"}, status=400)

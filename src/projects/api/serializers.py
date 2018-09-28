@@ -83,10 +83,16 @@ class ProjectSerializer(serializers.ModelSerializer):
                     "Only Classification projects may have a inspector or a repetition rate unequal to 1.0."
                 )
         else:
-            if inspector and repetition_rate == 1.0:
-                raise serializers.ValidationError(
-                    "No need to include a inspector since repetition rate is 1.0."
-                )
+            if repetition_rate == 1.0:
+                if inspector:
+                    raise serializers.ValidationError(
+                        "No need to include a inspector since repetition rate is 1.0."
+                    )
+            else:
+                if not inspector:
+                    raise serializers.ValidationError(
+                        "Classification projects must have a inspector since repetition rate unequal to 1.0."
+                    )
         return data
 
     def get_uri(self, obj):
