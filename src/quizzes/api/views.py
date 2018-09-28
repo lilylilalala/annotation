@@ -8,6 +8,7 @@ from .serializers import (
     QuestionSerializer,
     AnswerSerializer,
     QuizRecordSerializer,
+    QuestionsAddSerializer,
 )
 from accounts.api.permissions import IsOwner
 
@@ -35,22 +36,28 @@ class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
         serializer.save(founder=self.request.user)
 
 
-class QuizAPIDetailView(generics.RetrieveAPIView):
+class QuizAPIDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     """
     get:
         【测试题管理】 根据id，获取测试题详情
-
+    put:
+        【测试题管理】 上传一个新的quiz文件,在原先的题目不删除的情况下添加
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    serializer_class = QuizSerializer
+    serializer_class = QuestionsAddSerializer
     queryset = Quiz.objects.all()
     lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 
 class QuestionAPIView(generics.ListAPIView):
     """
     get:
         【测试题管理】 获取测试题详情，只有创建测试题的人可以看
+    put:
+        【任务管理】 删除指定的一道题目
     """
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = QuestionSerializer
@@ -62,6 +69,13 @@ class QuestionAPIView(generics.ListAPIView):
         quiz_id = self.kwargs.get("id", None)
         quiz = get_object_or_404(Quiz, id=quiz_id, founder=self.request.user)
         return quiz.question_set.all()
+
+    def put(self, request, *args, **kwargs):
+        quiz_id = self.kwargs.get("id", None)
+        quiz = get_object_or_404(Quiz, id=quiz_id, founder=self.request.user)
+        question_id = request.data.get("question_id")
+        question = quiz.question_set.get(id=question_id)
+        question.delete()
 
 
 class AnswerAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):

@@ -47,6 +47,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     text_content = serializers.SerializerMethodField(read_only=True)
+    question_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Question
@@ -56,6 +57,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             'text_content',
             'label',
             'timestamp',
+            'question_id',
         ]
         read_only_fields = ['quiz', 'label']
 
@@ -126,3 +128,24 @@ class QuizRecordSerializer(serializers.ModelSerializer):
 
     def get_contributor_name(self, obj):
         return obj.contributor.full_name
+
+
+class QuestionsAddSerializer(QuizSerializer):
+
+    class Meta:
+        model = Quiz
+        fields = [
+            'id',
+            'name',
+            'tags',
+            'tags_detail',
+            'quiz_target',
+            'target',
+            'quiz_file',
+            'label_file',
+            'founder',
+            'contributors',
+            'description',
+            'updated',
+        ]
+        read_only_fields = ['founder', 'contributors', 'name', 'tags', 'quiz_target', 'description', ]

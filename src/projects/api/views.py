@@ -417,9 +417,16 @@ class InspectorsListView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     def get_object(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
+        return project.inspector
+
+    def get(self, request, *args, **kwargs):
+        project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
         if project.inspector:
-            return project.inspector
-        return User.objects.none()
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        return Response({"message": "No inspector in the project!"}, status=400)
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
