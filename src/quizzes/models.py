@@ -113,6 +113,7 @@ class Answer(models.Model):
     quiz_contributor = models.ForeignKey(QuizContributor)
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(null=True)
 
 
 def create_questions(instance):
@@ -157,15 +158,3 @@ def create_answers_receiver(sender, instance, created, *args, **kwargs):
             Answer.objects.create(quiz_contributor=instance, question=question)
 
 
-@receiver(post_save, sender=Answer)
-def update_status_accuracy_receiver(sender, instance, *args, **kwargs):
-    qc = instance.quiz_contributor
-    if qc.is_completed:
-        qc.status = 'completed'
-        if not qc.accuracy:
-            good_answer = 0
-            for answer in Answer.objects.filter(quiz_contributor=qc):
-                if answer.label == answer.question.label:
-                    good_answer += 1
-            qc.accuracy = good_answer/qc.quantity
-        qc.save()
