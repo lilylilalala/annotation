@@ -37,7 +37,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     post:
         【任务管理】 新建任务
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectSerializer
     queryset = Project.objects.filter(private=False, status='answering')
     passed_id = None
@@ -67,7 +67,7 @@ class ProjectAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
     delete:
         【任务管理】 删除任务
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     serializer_class = ProjectInlineUserSerializer
     queryset = Project.objects.all()
     lookup_field = 'id'
@@ -139,7 +139,7 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
         project_id = self.kwargs.get("id", None)
         if project_id is None:
             return User.objects.none()
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         return project.contributors.all()
 
     def put(self, request, *args, **kwargs):
@@ -171,17 +171,16 @@ class ProjectAddContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
 
     def get_queryset(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
+        project = get_object_or_404(Project, id=project_id)
         if project_id is None:
             return User.objects.none()
         return User.objects.exclude(contributed_projects=project_id)
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         user_id = request.data.get("user_id")
         user = get_object_or_404(User, id=user_id)
-        if user is None:
-            return Response({"message": "User does not exist"}, status=400)
         if user not in project.contributors.all():
             project.contributors.add(user)
             return Response({"message": "User has successfully entered the project!"}, status=200)
@@ -208,7 +207,7 @@ class ProjectDeleteContributorsView(generics.ListAPIView, mixins.UpdateModelMixi
         project_id = self.kwargs.get("id", None)
         if project_id is None:
             return User.objects.none()
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         return project.contributors.all()
 
     def put(self, request, *args, **kwargs):
@@ -230,7 +229,7 @@ class ProjectVerifyListView(generics.ListAPIView):
     get:
         【任务审核】 获取状态为“审核中”or“已通过”or“未通过”的任务列表
     """
-    Permission_classes = [IsStaff]
+    permission_classes = [IsStaff]
     serializer_class = ProjectSerializer
 
     search_fields = ('project_type', 'founder__email')
@@ -248,7 +247,7 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
     put:
         【任务审核】 修改审核状态为“通过”或“不通过”
     """
-    Permission_classes = [IsStaff]
+    permission_classes = [IsStaff]
     serializer_class = ProjectInlineVerifySerializer
 
     def get_object(self, *args, **kwargs):
@@ -401,29 +400,24 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
             return Response({"message": "Project is not completed"}, status=400)
 
 
-class InspectorsListView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     """
     get:
-        【检查任务】 获取当前任务的标注人
+        【检查任务】 获取当前任务的检查人
     put:
-        【更新检查人】 根据提交的user_id，通过put方法更新project的检查人
+        【检查任务】 根据提交的user_id，通过put方法更新project的检查人
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = EditContributorsSerializer
 
     search_fields = ('email', 'full_name')
     ordering_fields = ('email', 'full_name')
 
-    def get_object(self, *args, **kwargs):
-        project_id = self.kwargs.get("id", None)
-        project = get_object_or_404(Project, id=project_id)
-        return project.inspector
-
     def get(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
-        if project.inspector:
-            instance = self.get_object()
+        instance = project.inspector
+        if instance:
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
         return Response({"message": "No inspector in the project!"}, status=400)
@@ -432,6 +426,8 @@ class InspectorsListView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
         project_id = self.kwargs.get("id", None)
         project = Project.objects.get(id=project_id)
         user_id = request.data.get("user_id")
+        if not user_id:
+            return Response({"message": "User_id should not be empty!"}, status=400)
         user = get_object_or_404(User, id=user_id)
         project_type = project.project_type.type.name
         if project_type == 'Classification':

@@ -14,7 +14,7 @@ from .views import (
     ProjectMyContributionView,
     ProjectMyInspectionView,
     ProjectResultDownloadView,
-    InspectorsListView,
+    ProjectInspectorView,
 )
 
 
@@ -32,5 +32,5 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/my_contribution/$', ProjectMyContributionView.as_view(), name='my-contribution'),
     url(r'^(?P<id>\d+)/my_inspection/$', ProjectMyInspectionView.as_view(), name='my-inspection'),
     url(r'^(?P<id>\d+)/download_result/$', ProjectResultDownloadView.as_view(), name='download-result'),
-    url(r'^(?P<id>\d+)/inspectors/$', InspectorsListView.as_view(), name='inspectors'),
+    url(r'^(?P<id>\d+)/inspector/$', ProjectInspectorView.as_view(), name='inspector'),
 ]

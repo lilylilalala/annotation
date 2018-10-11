@@ -91,10 +91,10 @@ class TaskContributeUpdateSerializer(TaskContributeSerializer):
             'updated',
             'previous_id',
             'next_id',
-            'submitted',
             'label',
+            'submitted',
         ]
-        read_only_fields = ['id', 'contributor', 'created', 'submitted']
+        read_only_fields = ['id', 'contributor', 'created']
 
 
 class TaskInspectSerializer(serializers.ModelSerializer):

@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from projects.models import Project
 from projects.api.views import ProjectAPIView
@@ -63,7 +64,7 @@ class UserFoundedProjectAPIView(ProjectAPIView):
         user_id = self.kwargs.get("id", None)
         if user_id is None:
             return Project.objects.none()
-        user = User.objects.get(id=user_id)
+        user = get_object_or_404(User, id=user_id)
         return user.founded_projects.all()
 
     def post(self, request, *args, **kwargs):
@@ -113,7 +114,7 @@ class UserContributedProjectAPIView(UserFoundedProjectAPIView):
         user_id = self.kwargs.get("id", None)
         if user_id is None:
             return Project.objects.none()
-        user = User.objects.get(id=user_id)
+        user = get_object_or_404(User, id=user_id)
         return user.contributed_projects.all()
 
 

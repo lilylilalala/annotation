@@ -50,7 +50,7 @@ class TargetAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, gen
         【目标管理】 删除目标
 
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     serializer_class = TargetSerializer
     lookup_field = 'id'
 
