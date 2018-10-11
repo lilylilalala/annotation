@@ -112,7 +112,7 @@ class ProjectReleaseView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         if project.project_status in ['unreleased', 'failed']:
             Project.objects.filter(id=project.id).update(status='verifying')
             return self.get(self, request, *args, **kwargs)
@@ -144,7 +144,7 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         user = request.user
         if user in project.contributors.all():
             project.contributors.remove(user)
@@ -180,6 +180,8 @@ class ProjectAddContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
         user_id = request.data.get("user_id")
+        if not user_id:
+            return Response({"message": "User_id should not be empty!"}, status=400)
         user = get_object_or_404(User, id=user_id)
         if user not in project.contributors.all():
             project.contributors.add(user)
@@ -212,7 +214,7 @@ class ProjectDeleteContributorsView(generics.ListAPIView, mixins.UpdateModelMixi
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         user_id = request.data.get("user_id")
         user = get_object_or_404(User, id=user_id)
         if user is None:
@@ -424,7 +426,7 @@ class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         user_id = request.data.get("user_id")
         if not user_id:
             return Response({"message": "User_id should not be empty!"}, status=400)
