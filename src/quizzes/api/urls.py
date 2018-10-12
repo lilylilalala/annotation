@@ -8,6 +8,7 @@ from .views import (
     QuizRecordView,
     AnswerUpdateAPIView,
     QuestionSubmitAPIView,
+    QuestionTypeAPIView,
 )
 
 
@@ -19,4 +20,5 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/records/', QuizRecordView.as_view(), name='record-list'),
     url(r'^(?P<id>\d+)/answer/(?P<answerid>\d+)/update$', AnswerUpdateAPIView.as_view(), name='answer-update'),
     url(r'^(?P<id>\d+)/answer/submit$', QuestionSubmitAPIView.as_view(), name='answer-submit'),
+    url(r'^types/$', QuestionTypeAPIView.as_view(), name='type_list'),
 ]

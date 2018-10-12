@@ -2,8 +2,8 @@ import csv
 
 from rest_framework import serializers
 
-from quizzes.models import Quiz, Question, Answer, QuizContributor
-from targets.api.serializers import TargetSerializer
+from quizzes.models import Quiz, Question, Answer, QuizContributor, QuestionType
+from targets.api.serializers import TargetSerializer, TargetTypeSerializer
 from tags.api.serializers import TagBriefSerializer
 from annotation.utils import get_filename_ext
 
@@ -233,3 +233,20 @@ class QuestionSubmitSerializer(serializers.ModelSerializer):
 
     def get_contributor_name(self, obj):
         return obj.contributor.full_name
+
+
+class QuestionTypeSerializer(serializers.ModelSerializer):
+    target_type = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = QuestionType
+        fields = [
+            'id',
+            'name',
+            'chinese_name',
+            'target_type',
+        ]
+
+    def get_target_type(self, obj):
+        target_type = obj.type
+        return TargetTypeSerializer(target_type).data

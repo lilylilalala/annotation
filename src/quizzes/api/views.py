@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions
 
-from quizzes.models import Quiz, QuizContributor, Answer
+from quizzes.models import Quiz, QuizContributor, Answer, QuestionType
 from .serializers import (
     QuizSerializer,
     QuestionSerializer,
@@ -11,6 +11,7 @@ from .serializers import (
     QuestionsAddSerializer,
     AnswerUpdateSerializer,
     QuestionSubmitSerializer,
+    QuestionTypeSerializer,
 )
 from accounts.api.permissions import IsOwner
 import django.utils.timezone as timezone
@@ -224,3 +225,13 @@ class QuestionSubmitAPIView(generics.RetrieveAPIView):
                 return Response({"message": "%s questions remain unanswered,Can't be submitted" % uncompleted}, status=400)
         else:
             return Response({"message": "Quiz submitted"}, status=400)
+
+
+class QuestionTypeAPIView(generics.ListAPIView):
+    """
+    get:
+        【任务管理】 获取任务类型列表
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = QuestionTypeSerializer
+    queryset = QuestionType.objects.all()
