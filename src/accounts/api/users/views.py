@@ -145,6 +145,49 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
         return Response({"detail": "Not allowed here"}, status=400)
 
 
+class UserInspectedProjectAPIView(UserFoundedProjectAPIView):
+    """
+    get:
+        【参与任务】 根据用户id，获取用户检查的任务列表
+
+    post:
+        没有post方法
+    """
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.kwargs.get("id", None)
+        if user_id is None:
+            return Project.objects.none()
+        user = get_object_or_404(User, id=user_id)
+        return user.inspected_projects.all()
+
+
+class UserOwnInspectedProjectAPIView(ProjectAPIView):
+    """
+    get:
+        【参与任务】 获取当前用户检查的任务列表
+
+    post:
+        没有post方法
+    """
+    serializer_class = ProjectInlineUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    search_fields = ('name', 'project_type')
+    ordering_fields = ('name', 'project_type', 'timestamp')
+    filter_fields = ('project_type', 'status')
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        if user_id is None:
+            return Project.objects.none()
+        user = User.objects.get(id=user_id)
+        projects = user.inspected_projects.filter(status__in=['answering', 'checking', 'completed'])
+        return projects
+
+    def post(self, request, *args, **kwargs):
+        return Response({"detail": "Not allowed here"}, status=400)
+
+
 class UserUpdateInfoAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     """
     get:

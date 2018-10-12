@@ -8,6 +8,8 @@ from .views import (
     UserOwnFoundedProjectAPIView,
     UserContributedProjectAPIView,
     UserOwnContributedProjectAPIView,
+    UserInspectedProjectAPIView,
+    UserOwnInspectedProjectAPIView,
     UserUpdateInfoAPIView,
     UserPasswordAPIView,
 )
@@ -25,6 +27,10 @@ urlpatterns = [
         name='contributed-projects-list'),
     url(r'^contributed_projects/$', UserOwnContributedProjectAPIView.as_view(),
         name='my-contributed-projects-list'),
+    url(r'^(?P<id>\d+)/inspected_projects/$', UserInspectedProjectAPIView.as_view(),
+        name='inspected-projects-list'),
+    url(r'^inspected_projects/$', UserOwnInspectedProjectAPIView.as_view(),
+        name='my-inspected-projects-list'),
     url(r'^info/$', UserUpdateInfoAPIView.as_view(), name='my-info'),
     url(r'^update_password/$', UserPasswordAPIView.as_view(), name='my-password'),
 ]
