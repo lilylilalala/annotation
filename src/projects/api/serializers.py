@@ -100,7 +100,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return api_reverse('api-projects:detail', kwargs={'id': obj.id}, request=request)
 
     def get_project_type_name(self, obj):
-        return obj.project_type.name
+        return obj.project_type.chinese_name
 
     def get_quiz_name(self, obj):
         if obj.quiz:
