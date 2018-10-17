@@ -21,7 +21,7 @@ class TargetAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = TargetSerializer
 
     passed_id = None
-    search_fields = ('name', 'type', )
+    search_fields = ('name', )
     ordering_fields = ('updated', 'type')
     filter_fields = ('type',)
 

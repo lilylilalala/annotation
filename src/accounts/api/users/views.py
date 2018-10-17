@@ -82,7 +82,7 @@ class UserOwnFoundedProjectAPIView(ProjectAPIView):
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    search_fields = ('name', 'project_type')
+    search_fields = ('name',)
     ordering_fields = ('name', 'project_type', 'timestamp')
     filter_fields = ('project_type',)
 
@@ -129,7 +129,7 @@ class UserOwnContributedProjectAPIView(ProjectAPIView):
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    search_fields = ('name', 'project_type')
+    search_fields = ('name',)
     ordering_fields = ('name', 'project_type', 'timestamp')
     filter_fields = ('project_type', 'status')
 
@@ -172,7 +172,7 @@ class UserOwnInspectedProjectAPIView(ProjectAPIView):
     serializer_class = ProjectInlineUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    search_fields = ('name', 'project_type')
+    search_fields = ('name',)
     ordering_fields = ('name', 'project_type', 'timestamp')
     filter_fields = ('project_type', 'status')
 

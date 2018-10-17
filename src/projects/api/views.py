@@ -42,7 +42,7 @@ class ProjectAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Project.objects.filter(private=False, status='answering')
     passed_id = None
 
-    search_fields = ('project_type', 'founder__email')
+    search_fields = ('name', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
     filter_fields = ('project_type',)
 
@@ -234,7 +234,7 @@ class ProjectVerifyListView(generics.ListAPIView):
     permission_classes = [IsStaff]
     serializer_class = ProjectSerializer
 
-    search_fields = ('project_type', 'founder__email')
+    search_fields = ('name', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
     filter_fields = ('status',)
 

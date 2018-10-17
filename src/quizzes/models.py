@@ -62,6 +62,9 @@ class Quiz(models.Model):
     def __str__(self):
         return str(self.id) + '_' + self.name
 
+    @property
+    def owner(self):
+        return self.founder
 
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz)
