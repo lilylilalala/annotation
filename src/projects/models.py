@@ -49,7 +49,7 @@ class Project(models.Model):
     inspector = models.ForeignKey(User, blank=True, null=True, related_name='inspected_projects')
     quiz = models.ForeignKey(Quiz, blank=True, null=True, related_name='related_projects')
     accuracy_requirement = models.DecimalField(
-        max_digits=2, decimal_places=1, default=0.0,
+        max_digits=3, decimal_places=2, default=0.0,
         validators=[MinValueValidator(0), MaxValueValidator(1)]
     )
     repetition_rate = models.DecimalField(
