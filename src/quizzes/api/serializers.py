@@ -33,6 +33,15 @@ class QuizSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['founder', 'contributors']
 
+    def validate(self, data):
+        quiz_file = data.get('quiz_file')
+        label_file = data.get('label_file')
+        if quiz_file and label_file:
+            return data
+        elif quiz_file or label_file:
+            raise serializers.ValidationError("Please add both quiz_file and label_file!")
+        return data
+
     def get_tags_detail(self, obj):
         tags_queryset = obj.tags
         return TagBriefSerializer(tags_queryset, many=True).data

@@ -13,7 +13,7 @@ from .serializers import (
     QuestionSubmitSerializer,
     QuestionTypeSerializer,
 )
-from accounts.api.permissions import IsOwner
+from accounts.api.permissions import IsOwner, IsOwnerOrReadOnly
 import django.utils.timezone as timezone
 
 
@@ -29,7 +29,7 @@ class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = QuizSerializer
     queryset = Quiz.objects.all()
 
-    search_fields = ('quiz_type', 'founder__email')
+    search_fields = ('name', 'founder__email')
     ordering_fields = ('quiz_type', 'timestamp')
     filter_fields = ('quiz_type',)
 
@@ -40,14 +40,45 @@ class QuizAPIView(mixins.CreateModelMixin, generics.ListAPIView):
         serializer.save(founder=self.request.user)
 
 
-class QuizAPIDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+class QuizAPIDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
     """
     get:
-        【测试题管理】 根据id，获取测试题详情
+        【测试题管理】 获取测试题详情
+
+    put:
+        【测试题管理】 编辑测试题
+
+    delete:
+        【测试题管理】 删除测试题
+    """
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    serializer_class = QuizSerializer
+    queryset = Quiz.objects.all()
+    lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        quiz_id = self.kwargs.get("id", None)
+        quiz_file = request.data.get("quiz_file", None)
+        label_file = request.data.get("label_file", None)
+        if quiz_file and label_file:
+            quiz = get_object_or_404(Quiz, id=quiz_id)
+            question = quiz.question_set.all()
+            question.delete()
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class QuestionsAddAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+    """
+    get:
+        【测试题管理】 获取测试题详情
+
     put:
         【测试题管理】 上传一个新的quiz文件,在原先的题目不删除的情况下添加
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = QuestionsAddSerializer
     queryset = Quiz.objects.all()
     lookup_field = 'id'
@@ -60,6 +91,7 @@ class QuestionAPIView(generics.ListAPIView):
     """
     get:
         【测试题管理】 获取测试题详情，只有创建测试题的人可以看
+
     put:
         【测试题管理】 删除指定的一道题目
     """

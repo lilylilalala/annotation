@@ -29,3 +29,18 @@ class TagBriefSerializer(TagSerializer):
             'level',
         ]
 
+
+class TagDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = [
+            'id',
+            'name',
+            'parent',
+            'level',
+            'description',
+            'founder',
+            'updated',
+        ]
+        read_only_fields = ['updated', 'founder', 'parent', 'level', 'description']
