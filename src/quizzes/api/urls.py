@@ -10,6 +10,7 @@ from .views import (
     QuestionSubmitAPIView,
     QuestionTypeAPIView,
     QuestionsAddAPIView,
+    QuestionDownloadAPIView,
 )
 
 
@@ -23,4 +24,5 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/answer/(?P<answerid>\d+)/update$', AnswerUpdateAPIView.as_view(), name='answer-update'),
     url(r'^(?P<id>\d+)/answer/submit$', QuestionSubmitAPIView.as_view(), name='answer-submit'),
     url(r'^types/$', QuestionTypeAPIView.as_view(), name='type_list'),
+    url(r'^(?P<id>\d+)/file_download/$', QuestionDownloadAPIView.as_view(), name='question_file_download'),
 ]

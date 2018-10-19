@@ -2,6 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions
 
+from django.http import HttpResponse
+import csv
+from django.utils.encoding import escape_uri_path
 from quizzes.models import Quiz, QuizContributor, Answer, QuestionType
 from .serializers import (
     QuizSerializer,
@@ -112,6 +115,47 @@ class QuestionAPIView(generics.ListAPIView):
         question_id = request.data.get("question_id")
         question = quiz.question_set.get(id=question_id)
         question.delete()
+
+
+class QuestionDownloadAPIView(generics.ListAPIView):
+    """
+    get:
+        【测试题管理】 下载测试题
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = QuestionSerializer
+
+    def get(self, request, *args, **kwargs):
+        quiz_id = self.kwargs.get("id", None)
+        quiz = get_object_or_404(Quiz, id=quiz_id, founder=request.user)
+        return self.download_file(quiz)
+
+    def download_file(self, instance):
+        queryset = instance.question_set.all()
+        response = HttpResponse(content_type='text/csv')
+        name = '%s_%s_%s.csv' % (instance.id, instance.name, instance.quiz_type)
+        response['Content-Disposition'] = "attachment; filename*=utf-8''{}".format(escape_uri_path(name))
+        print(response['Content-Disposition'])
+        writer = csv.writer(response)
+        for i, obj in enumerate(queryset):
+            path = obj.file_path
+            reader = csv.reader(open(path, encoding='utf-8'))
+            if i == 0:
+                for j, row in enumerate(reader):
+                    if j == 0:
+                        row.append('label')
+                        writer.writerow(row)
+                    else:
+                        row[0] = i
+                        row.append(obj.label)
+                        writer.writerow(row)
+            else:
+                for j, row in enumerate(reader):
+                    if j == 1:
+                        row[0] = i
+                        row.append(obj.label)
+                        writer.writerow(row)
+        return response
 
 
 class AnswerAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
