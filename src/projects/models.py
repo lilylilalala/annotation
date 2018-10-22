@@ -105,6 +105,14 @@ class Project(models.Model):
         return self.status.verify_status
 
     @property
+    def status_name(self):
+        return self.status.project_status_name
+
+    @property
+    def verify_status_name(self):
+        return self.status.verify_status_name
+
+    @property
     def progress(self):
         if self.copies != 0:
             total = self.copies

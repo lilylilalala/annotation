@@ -43,6 +43,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'repetition_rate',
             'description',
             'status',
+            'status_name',
             'private',
             'deadline',
             'quantity',
@@ -158,6 +159,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'repetition_rate',
             'description',
             'status',
+            'status_name',
             'private',
             'deadline',
             'quantity',
@@ -182,6 +184,7 @@ class ProjectReleaseSerializer(ProjectSerializer):
             'founder',
             'description',
             'status',
+            'status_name',
         ]
         read_only_fields = ['name', 'founder', 'description', 'status']
 
@@ -200,6 +203,7 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'description',
             'deadline',
             'verify_status',
+            'verify_status_name',
             'project_file',
             'uri',
         ]
@@ -219,7 +223,8 @@ class ProjectResultURLSerializer(ProjectSerializer):
     class Meta:
         model = Project
         fields = [
-            'project_status',
+            'status',
+            'status_name',
             'quantity',
             'result_file',
         ]
