@@ -236,9 +236,14 @@ class ProjectVerifyListView(generics.ListAPIView):
 
     search_fields = ('name', 'founder__email')
     ordering_fields = ('project_type', 'timestamp')
-    filter_fields = ('status',)
 
-    queryset = Project.objects.exclude(status='unreleased')
+    def get_queryset(self, *args, **kwargs):
+        queryset = Project.objects.exclude(status='unreleased')
+        verify_status = self.request.GET.get("verify_status", None)
+        if verify_status:
+            project_ids = [x.id for x in queryset if x.verify_status == verify_status]
+            queryset = Project.objects.filter(pk__in=project_ids)
+        return queryset
 
 
 class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
