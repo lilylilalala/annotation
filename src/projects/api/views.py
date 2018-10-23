@@ -423,6 +423,8 @@ class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     def get(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
+        if not project.founder == request.user:
+            return Response({"message": "You must be the owner of this content to change!"}, status=400)
         instance = project.inspector
         if instance:
             serializer = self.get_serializer(instance)
@@ -432,6 +434,8 @@ class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
+        if not project.founder == request.user:
+            return Response({"message": "You must be the owner of this content to change!"}, status=400)
         user_id = request.data.get("user_id")
         if not user_id:
             return Response({"message": "User_id should not be empty!"}, status=400)

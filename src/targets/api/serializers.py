@@ -32,3 +32,19 @@ class TargetTypeSerializer(serializers.ModelSerializer):
             'name',
             'chinese_name',
         ]
+
+
+class TargetDetailSerializer(TargetSerializer):
+    class Meta:
+        model = Target
+        fields = [
+            'id',
+            'user',
+            'name',
+            'type',
+            'type_name',
+            'entity',
+            'description',
+            'updated',
+            'timestamp',
+        ]

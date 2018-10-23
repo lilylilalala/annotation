@@ -8,7 +8,12 @@ from projects.api.views import ProjectAPIView
 from .serializers import UserDetailSerializer, UserInlineSerializer, UserDetailUpdateSerializer, UserPasswordUpdateSerializer
 from projects.api.serializers import ProjectInlineUserSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly
-
+from quizzes.api.views import QuizAPIView
+from quizzes.api.serializers import QuizDetailSerializer
+from quizzes.models import Quiz
+from targets.api.views import TargetAPIView
+from targets.api.serializers import TargetDetailSerializer
+from targets.models import Target
 
 User = get_user_model()
 
@@ -93,6 +98,58 @@ class UserOwnFoundedProjectAPIView(ProjectAPIView):
         user = User.objects.get(id=user_id)
         projects = user.founded_projects.all()
         return projects
+
+    def post(self, request, *args, **kwargs):
+        return Response({"detail": "Not allowed here"}, status=400)
+
+
+class UserOwnFoundedQuizAPIView(QuizAPIView):
+    """
+    get:
+        【测试题管理】 根据用户id，获取当前用户创建的测试题列表
+
+    post:
+        没有post方法
+    """
+    serializer_class = QuizDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    search_fields = ('name',)
+    ordering_fields = ('name', 'quiz_type', 'timestamp')
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        if user_id is None:
+            return Quiz.objects.none()
+        user = User.objects.get(id=user_id)
+        quizzes = user.founded_quizzes.all()
+        return quizzes
+
+    def post(self, request, *args, **kwargs):
+        return Response({"detail": "Not allowed here"}, status=400)
+
+
+class UserOwnFoundedTargetAPIView(TargetAPIView):
+    """
+    get:
+        【目标管理】 根据用户id，获取当前用户创建的目标列表
+
+    post:
+        没有post方法
+    """
+    serializer_class = TargetDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    search_fields = ('name',)
+    ordering_fields = ('name', 'type', 'timestamp')
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        if user_id is None:
+            return Target.objects.none()
+        user = User.objects.get(id=user_id)
+        quizzes = user.target_set.all()
+        return quizzes
 
     def post(self, request, *args, **kwargs):
         return Response({"detail": "Not allowed here"}, status=400)

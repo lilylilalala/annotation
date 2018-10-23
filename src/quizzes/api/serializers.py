@@ -259,3 +259,26 @@ class QuestionTypeSerializer(serializers.ModelSerializer):
     def get_target_type(self, obj):
         target_type = obj.type
         return TargetTypeSerializer(target_type).data
+
+
+class QuizDetailSerializer(QuizSerializer):
+
+    class Meta:
+        model = Quiz
+        fields = [
+            'id',
+            'name',
+            'tags',
+            'tags_detail',
+            'quiz_type',
+            'quiz_type_name',
+            'quiz_target',
+            'target',
+            'quiz_file',
+            'label_file',
+            'founder',
+            'contributors',
+            'description',
+            'updated',
+            'timestamp',
+        ]

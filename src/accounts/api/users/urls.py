@@ -12,6 +12,8 @@ from .views import (
     UserOwnInspectedProjectAPIView,
     UserUpdateInfoAPIView,
     UserPasswordAPIView,
+    UserOwnFoundedQuizAPIView,
+    UserOwnFoundedTargetAPIView,
 )
 
 
@@ -23,6 +25,10 @@ urlpatterns = [
         name='founded-projects-list'),
     url(r'^founded_projects/$', UserOwnFoundedProjectAPIView.as_view(),
         name='my-founded-projects-list'),
+    url(r'^founded_quizzes/$', UserOwnFoundedQuizAPIView.as_view(),
+        name='my-founded-quizzes-list'),
+    url(r'^founded_targets/$', UserOwnFoundedTargetAPIView.as_view(),
+        name='my-founded-targets-list'),
     url(r'^(?P<id>\d+)/contributed_projects/$', UserContributedProjectAPIView.as_view(),
         name='contributed-projects-list'),
     url(r'^contributed_projects/$', UserOwnContributedProjectAPIView.as_view(),
