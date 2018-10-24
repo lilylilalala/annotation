@@ -28,6 +28,7 @@ class QuizSerializer(serializers.ModelSerializer):
             'label_file',
             'founder',
             'contributors',
+            'contributor_number',
             'description',
             'updated',
         ]

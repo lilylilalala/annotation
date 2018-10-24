@@ -66,6 +66,11 @@ class Quiz(models.Model):
     def owner(self):
         return self.founder
 
+    @property
+    def contributor_number(self):
+        return self.quizcontributor_set.filter(status='submitted').count()
+
+
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz)
     file_path = models.CharField(max_length=255)
