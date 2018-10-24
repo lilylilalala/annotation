@@ -48,7 +48,7 @@ class QuizSerializer(serializers.ModelSerializer):
         return TagBriefSerializer(tags_queryset, many=True).data
 
     def get_quiz_type_name(self, obj):
-        return obj.quiz_type.name
+        return obj.quiz_type.chinese_name
 
     def get_target(self, obj):
         target = obj.quiz_target

@@ -20,7 +20,7 @@ class TargetSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def get_type_name(self, obj):
-        return obj.type.name
+        return obj.type.chinese_name
 
 
 class TargetTypeSerializer(serializers.ModelSerializer):
