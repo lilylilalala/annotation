@@ -80,6 +80,13 @@ class Question(models.Model):
     def __str__(self):
         return str(self.id) + '_' + self.quiz.name
 
+    @property
+    def qid(self):
+        quiz = self.quiz
+        question_id_list = quiz.question_set.all().values_list('id', flat=True)
+        question_id = list(question_id_list).index(self.id)
+        return question_id+1
+
 
 class QuizContributor(models.Model):
     quiz = models.ForeignKey(Quiz)

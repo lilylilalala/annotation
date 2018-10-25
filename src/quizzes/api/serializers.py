@@ -57,12 +57,13 @@ class QuizSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     text_content = serializers.SerializerMethodField(read_only=True)
-    question_id = serializers.IntegerField(write_only=True)
+    question_id = serializers.CharField(write_only=True)
 
     class Meta:
         model = Question
         fields = [
             'id',
+            'qid',
             'quiz',
             'text_content',
             'label',

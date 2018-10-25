@@ -113,8 +113,11 @@ class QuestionAPIView(generics.ListAPIView):
         quiz_id = self.kwargs.get("id", None)
         quiz = get_object_or_404(Quiz, id=quiz_id, founder=self.request.user)
         question_id = request.data.get("question_id")
-        question = quiz.question_set.get(id=question_id)
-        question.delete()
+        if question_id:
+            question = quiz.question_set.get(id=question_id)
+            question.delete()
+        else:
+            return Response({"message": "Question_id should not be empty"}, status=400)
 
 
 class QuestionDownloadAPIView(generics.ListAPIView):
