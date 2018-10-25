@@ -13,7 +13,7 @@ class QuizSerializer(serializers.ModelSerializer):
     tags_detail = serializers.SerializerMethodField(read_only=True)
     quiz_type_name = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
-    project = serializers.SerializerMethodField(read_only=True)
+    projects = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Quiz
@@ -26,7 +26,7 @@ class QuizSerializer(serializers.ModelSerializer):
             'quiz_type_name',
             'quiz_target',
             'target',
-            'project',
+            'projects',
             'quiz_file',
             'label_file',
             'founder',
@@ -57,7 +57,7 @@ class QuizSerializer(serializers.ModelSerializer):
         target = obj.quiz_target
         return TargetSerializer(target).data
 
-    def get_project(self, obj):
+    def get_projects(self, obj):
         projects = obj.related_projects
         return ProjectQuizSerializer(projects, many=True).data
 
@@ -161,7 +161,7 @@ class QuestionsAddSerializer(QuizSerializer):
             'tags_detail',
             'quiz_target',
             'target',
-            'project',
+            'projects',
             'quiz_file',
             'label_file',
             'founder',
