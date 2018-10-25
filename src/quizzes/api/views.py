@@ -101,7 +101,7 @@ class QuestionAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = QuestionSerializer
 
-    search_fields = ('text_content', 'label')
+    search_fields = ()
     ordering_fields = ()
 
     def get_queryset(self, *args, **kwargs):
