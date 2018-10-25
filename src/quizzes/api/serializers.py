@@ -6,12 +6,14 @@ from quizzes.models import Quiz, Question, Answer, QuizContributor, QuestionType
 from targets.api.serializers import TargetSerializer, TargetTypeSerializer
 from tags.api.serializers import TagBriefSerializer
 from annotation.utils import get_filename_ext
+from projects.api.serializers import ProjectQuizSerializer
 
 
 class QuizSerializer(serializers.ModelSerializer):
     tags_detail = serializers.SerializerMethodField(read_only=True)
     quiz_type_name = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
+    project = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Quiz
@@ -24,6 +26,7 @@ class QuizSerializer(serializers.ModelSerializer):
             'quiz_type_name',
             'quiz_target',
             'target',
+            'project',
             'quiz_file',
             'label_file',
             'founder',
@@ -54,6 +57,10 @@ class QuizSerializer(serializers.ModelSerializer):
         target = obj.quiz_target
         return TargetSerializer(target).data
 
+    def get_project(self, obj):
+        projects = obj.related_projects
+        return ProjectQuizSerializer(projects, many=True).data
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     text_content = serializers.SerializerMethodField(read_only=True)
@@ -65,6 +72,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             'id',
             'qid',
             'quiz',
+            'quiz_type',
+            'quiz_type_name',
             'text_content',
             'label',
             'timestamp',
@@ -152,6 +161,7 @@ class QuestionsAddSerializer(QuizSerializer):
             'tags_detail',
             'quiz_target',
             'target',
+            'project',
             'quiz_file',
             'label_file',
             'founder',

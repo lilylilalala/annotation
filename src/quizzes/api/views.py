@@ -93,7 +93,7 @@ class QuestionsAddAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 class QuestionAPIView(generics.ListAPIView):
     """
     get:
-        【测试题管理】 获取测试题详情，只有创建测试题的人可以看
+        【测试题管理】 获取测试题题目详情，只有创建测试题的人可以看
 
     put:
         【测试题管理】 删除指定的一道题目
@@ -101,7 +101,7 @@ class QuestionAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = QuestionSerializer
 
-    search_fields = ()
+    search_fields = ('text_content', 'label')
     ordering_fields = ()
 
     def get_queryset(self, *args, **kwargs):
@@ -114,8 +114,10 @@ class QuestionAPIView(generics.ListAPIView):
         quiz = get_object_or_404(Quiz, id=quiz_id, founder=self.request.user)
         question_id = request.data.get("question_id")
         if question_id:
-            question = quiz.question_set.get(id=question_id)
+            questions = quiz.question_set.all()
+            question = get_object_or_404(questions, id=question_id)
             question.delete()
+            return self.get(request, *args, **kwargs)
         else:
             return Response({"message": "Question_id should not be empty"}, status=400)
 

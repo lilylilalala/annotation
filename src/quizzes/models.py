@@ -87,6 +87,14 @@ class Question(models.Model):
         question_id = list(question_id_list).index(self.id)
         return question_id+1
 
+    @property
+    def quiz_type(self):
+        return self.quiz.quiz_type.id
+
+    @property
+    def quiz_type_name(self):
+        return self.quiz.quiz_type.chinese_name
+
 
 class QuizContributor(models.Model):
     quiz = models.ForeignKey(Quiz)

@@ -228,3 +228,12 @@ class ProjectResultURLSerializer(ProjectSerializer):
             'quantity',
             'result_file',
         ]
+
+
+class ProjectQuizSerializer(ProjectSerializer):
+    class Meta:
+        model = Project
+        fields = [
+            'id',
+            'name',
+        ]
