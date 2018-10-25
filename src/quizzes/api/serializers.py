@@ -29,9 +29,10 @@ class QuizSerializer(serializers.ModelSerializer):
             'projects',
             'quiz_file',
             'label_file',
+            'questions_quantity',
             'founder',
             'contributors',
-            'contributor_number',
+            'contributors_number',
             'description',
             'updated',
         ]
@@ -164,8 +165,10 @@ class QuestionsAddSerializer(QuizSerializer):
             'projects',
             'quiz_file',
             'label_file',
+            'questions_quantity',
             'founder',
             'contributors',
+            'contributors_number',
             'description',
             'updated',
         ]

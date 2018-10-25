@@ -67,8 +67,12 @@ class Quiz(models.Model):
         return self.founder
 
     @property
-    def contributor_number(self):
+    def contributors_number(self):
         return self.quizcontributor_set.filter(status='submitted').count()
+
+    @property
+    def questions_quantity(self):
+        return self.question_set.count()
 
 
 class Question(models.Model):
