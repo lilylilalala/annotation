@@ -23,6 +23,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     target = serializers.SerializerMethodField(read_only=True)
     is_in = serializers.SerializerMethodField(read_only=True)
     my_quantity = serializers.SerializerMethodField(read_only=True)
+    my_status = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -53,6 +54,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'target',
             'project_file',
             'is_in',
+            'my_status',
             'my_quantity',
             'uri',
         ]
@@ -138,6 +140,24 @@ class ProjectSerializer(serializers.ModelSerializer):
             return obj.contribution_set.filter(contributor=user).exclude(label='').count()
         return 0
 
+    def get_my_status(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        quiz = obj.quiz
+        if quiz:
+            if quiz.quizcontributor_set.filter(contributor=user):
+                qc = quiz.quizcontributor_set.get(contributor=user)
+                if qc.accuracy:
+                    if qc.accuracy < obj.accuracy_requirement:
+                        return 'quiz_failed'
+                    else:
+                        return 'go_to_task'
+                else:
+                    return 'go_to_quiz'
+            else:
+                return 'go_to_quiz'
+        else:
+            return 'go_to_task'
 
 class ProjectInlineUserSerializer(ProjectSerializer):
     class Meta:
@@ -169,6 +189,7 @@ class ProjectInlineUserSerializer(ProjectSerializer):
             'target',
             'project_file',
             'is_in',
+            'my_status',
             'my_quantity',
             'uri',
         ]
