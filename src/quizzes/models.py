@@ -36,6 +36,15 @@ class QuestionType(models.Model):
         return str(self.name)
 
 
+class QuizStatus(models.Model):
+    id = models.IntegerField()
+    quiz_status = models.CharField(max_length=128, primary_key=True)
+    quiz_status_name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return str(self.quiz_status)
+
+
 class Quiz(models.Model):
     name = models.CharField(max_length=128, unique=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_quizzes')
@@ -107,7 +116,7 @@ class QuizContributor(models.Model):
         max_digits=8, decimal_places=7, null=True,
         validators=[MinValueValidator(0), MaxValueValidator(1)]
     )
-    status = models.CharField(max_length=255, blank=True, default='in progress')
+    status = models.ForeignKey(QuizStatus, default='answering')
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

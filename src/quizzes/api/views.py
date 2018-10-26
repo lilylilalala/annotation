@@ -5,7 +5,7 @@ from rest_framework import generics, mixins, permissions
 from django.http import HttpResponse
 import csv
 from django.utils.encoding import escape_uri_path
-from quizzes.models import Quiz, QuizContributor, Answer, QuestionType
+from quizzes.models import Quiz, QuizContributor, Answer, QuestionType, QuizStatus
 from .serializers import (
     QuizSerializer,
     QuestionSerializer,
@@ -200,7 +200,7 @@ class AnswerAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             return Response(serializer.data)
         if quizcontributor.is_completed:
             return Response({"message": "All questions have been answered,Please check and submit!"}, status=200)
-        elif quizcontributor.status == 'submitted':
+        elif quizcontributor.status == QuizStatus(pk='submitted'):
             return Response({"message": "Quiz submitted"}, status=200)
 
     def put(self, request, *args, **kwargs):
@@ -290,9 +290,11 @@ class QuestionSubmitAPIView(generics.RetrieveAPIView):
     def put(self, request, *args, **kwargs):
         quiz_id = self.kwargs.get("id", None)
         qc = QuizContributor.objects.get(quiz_id=quiz_id, contributor_id=request.user)
-        if qc.status == 'in progress':
+        print(qc.status, qc.is_completed)
+        if qc.status == QuizStatus(pk='answering'):
             if qc.is_completed:
-                qc.status = 'submitted'
+                qc.status = QuizStatus(pk='submitted')
+                print(1, qc.status)
                 if not qc.accuracy:
                     good_answer = 0
                     for answer in Answer.objects.filter(quiz_contributor=qc):
