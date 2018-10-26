@@ -235,6 +235,22 @@ class QuizRecordView(generics.ListAPIView):
         return quiz.quizcontributor_set.all()
 
 
+class AnswerListAPIView(generics.ListAPIView):
+    """
+    get:
+        【参与任务】 获取已答的测试题列表
+
+    """
+    permission_classes = [permissions.IsAuthenticated, ]
+    serializer_class = AnswerSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        quiz_id = self.kwargs.get("id", None)
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        qc = quiz.quizcontributor_set.get(contributor=self.request.user)
+        return qc.answer_set.all().exclude(label='')
+
+
 class AnswerUpdateAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     """
     get:
@@ -249,19 +265,17 @@ class AnswerUpdateAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     lookup_field = 'id'
 
     def get(self, request, *args, **kwargs):
-        quiz_id = self.kwargs.get("id", None)
-        answerid = self.kwargs.get("answerid", None)
-        quizcontributor = QuizContributor.objects.get(quiz_id=quiz_id, contributor_id=self.request.user)
-        instance = Answer.objects.get(quiz_contributor=quizcontributor, id=answerid)
-        if quizcontributor.status != 'submitted':
+        answer_id = self.kwargs.get("answer_id", None)
+        instance = get_object_or_404(Answer, id=answer_id)
+        if instance.quiz_contributor.status != QuizStatus(pk='submitted'):
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
         return Response({"message": "Quiz submitted,Don't update"}, status=400)
 
     def put(self, request, *args, **kwargs):
-        answerid = self.kwargs.get("answerid", None)
+        answer_id = self.kwargs.get("answer_id", None)
         if request.data['label']:
-            instance = get_object_or_404(Answer, id=answerid)
+            instance = get_object_or_404(Answer, id=answer_id)
             instance.label = request.data['label']
             instance.save()
         else:

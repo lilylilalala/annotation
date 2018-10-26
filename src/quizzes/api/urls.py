@@ -11,6 +11,7 @@ from .views import (
     QuestionTypeAPIView,
     QuestionsAddAPIView,
     QuestionDownloadAPIView,
+    AnswerListAPIView,
 )
 
 
@@ -21,7 +22,8 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/add_questions/$', QuestionsAddAPIView.as_view(), name='question-add'),
     url(r'^(?P<id>\d+)/answer/$', AnswerAPIView.as_view(), name='answer'),
     url(r'^(?P<id>\d+)/records/$', QuizRecordView.as_view(), name='record-list'),
-    url(r'^(?P<id>\d+)/answer/(?P<answerid>\d+)/update/$', AnswerUpdateAPIView.as_view(), name='answer-update'),
+    url(r'^(?P<id>\d+)/my_answers/$', AnswerListAPIView.as_view(), name='answers-list'),
+    url(r'^answer/(?P<answer_id>\d+)/update/$', AnswerUpdateAPIView.as_view(), name='answer-update'),
     url(r'^(?P<id>\d+)/answer/submit/$', QuestionSubmitAPIView.as_view(), name='answer-submit'),
     url(r'^types/$', QuestionTypeAPIView.as_view(), name='type_list'),
     url(r'^(?P<id>\d+)/file_download/$', QuestionDownloadAPIView.as_view(), name='question_file_download'),
