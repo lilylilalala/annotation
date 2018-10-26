@@ -44,6 +44,10 @@ class QuizStatus(models.Model):
     def __str__(self):
         return str(self.quiz_status)
 
+    @property
+    def status_name(self):
+        return self.quiz_status_name
+
 
 class Quiz(models.Model):
     name = models.CharField(max_length=128, unique=True)
@@ -141,6 +145,10 @@ class QuizContributor(models.Model):
             return '%d%%' % (completed/num_of_answers*100)
         except:
             return '0%'
+
+    @property
+    def status_name(self):
+        return self.status.quiz_status_name
 
 
 class Answer(models.Model):
