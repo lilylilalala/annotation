@@ -120,6 +120,12 @@ class Project(models.Model):
             return '%d%%' % (completed/total*100)
         return '0%'
 
+    @property
+    def is_done(self):
+        if self.task_set.filter(label=''):
+            return False
+        return True
+
     def update_contributors(self):
         for contributor in self.contributors.all():
             self.contributors.remove(contributor)

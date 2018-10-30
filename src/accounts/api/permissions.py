@@ -93,3 +93,10 @@ class HasContributed(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return request.user == obj.contributor
+
+
+class HasInspected(permissions.BasePermission):
+    message = 'You must have inspected to this content to change.'
+
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.inspector

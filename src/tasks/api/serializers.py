@@ -211,3 +211,21 @@ class TaskResultSerializer(serializers.ModelSerializer):
 
     def get_contribution(self, obj):
         return ContributeResultSerializer(obj.contribution_set, many=True).data
+
+
+class TaskInspectUpdateSerializer(TaskInspectSerializer):
+    class Meta:
+        model = Inspection
+        fields = [
+            'id',
+            'project_type',
+            'target',
+            'text_content',
+            'inspector',
+            'inspector_name',
+            'created',
+            'updated',
+            'label',
+            'submitted',
+        ]
+        read_only_fields = ['id', 'inspector', 'created']

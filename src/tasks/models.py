@@ -33,12 +33,6 @@ class Task(models.Model):
     def __str__(self):
         return str(self.project) + '_' + str(self.id)
 
-    @property
-    def is_done(self):
-        if self.contribution_set.filter(submitted=False):
-            return False
-        return True
-
 
 class Contribution(models.Model):
     project = models.ForeignKey(Project)
@@ -152,18 +146,21 @@ def contribution_submit_receiver(sender, instance, *args, **kwargs):
 
 @receiver(post_save, sender=Contribution)
 def contribution_updated_receiver(sender, instance, *args, **kwargs):
-    task = instance.task
-    if task.is_done:
-        labels = task.contribution_set.values_list('label', flat=True)
-        if len(set(labels)) == 1:
-            task.label = instance.label
-        else:
-            top_labels = Counter(labels).most_common(2)
-            if top_labels[0][1] != top_labels[1][1]:
-                task.label = top_labels[0][0]
+    tasks = instance.project.task_set.all()
+    project = instance.project
+    if project.progress == '100%':
+        Project.objects.filter(id=project.id).update(status='checking')
+        for task in tasks:
+            labels = task.contribution_set.values_list('label', flat=True)
+            if len(set(labels)) == 1:
+                task.label = instance.label
             else:
-                Inspection.objects.create(task=task, project=instance.project)
-        task.save()
+                top_labels = Counter(labels).most_common(2)
+                if top_labels[0][1] != top_labels[1][1]:
+                    task.label = top_labels[0][0]
+                else:
+                    Inspection.objects.create(task=task, project=instance.project)
+            task.save()
 
 
 @receiver(post_save, sender=Inspection)
@@ -184,12 +181,10 @@ def inspection_updated_receiver(sender, instance, *args, **kwargs):
 @receiver(post_save, sender=Task)
 def task_updated_receiver(sender, instance, *args, **kwargs):
     project = instance.project
-    if project.progress == '100%':
-        if project.task_set.filter(label=''):
-            Project.objects.filter(id=project.id).update(status='checking')
-        else:
-            project.status = Status(pk='completed')
-            project.save()
+    if project.is_done:
+        project.status = Status(pk='completed')
+        project.save()
+
 
 
 

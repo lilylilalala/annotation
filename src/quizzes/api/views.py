@@ -231,7 +231,7 @@ class QuizRecordView(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         quiz_id = self.kwargs.get("id", None)
-        quiz = get_object_or_404(Quiz, id=quiz_id)
+        quiz = get_object_or_404(Quiz, id=quiz_id, founder=self.request.user)
         return quiz.quizcontributor_set.all()
 
 

@@ -6,11 +6,12 @@ import django.utils.timezone as timezone
 from rest_framework.response import Response
 from rest_framework import generics, mixins, permissions
 
-from projects.models import Project
+from projects.models import Project, Status
 from tasks.models import Task, Contribution, Inspection
 from quizzes.models import QuizContributor
-from .serializers import TaskContributeSerializer, TaskInspectSerializer, TaskContributeUpdateSerializer
-from accounts.api.permissions import IsContributorOrReadOnly, HasContributed, IsInspectorOrReadOnly
+from .serializers import TaskContributeSerializer, TaskInspectSerializer, TaskContributeUpdateSerializer, \
+    TaskInspectUpdateSerializer
+from accounts.api.permissions import IsContributorOrReadOnly, HasContributed, IsInspectorOrReadOnly, HasInspected
 
 
 class TaskContributeView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
@@ -136,7 +137,7 @@ class TaskInspectView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 class TaskContributeUpdateView(generics.RetrieveUpdateAPIView):
     """
     get:
-        【参与任务】 根据task id，获取已答过的题目详情
+        【参与任务】 根据id，获取已答过的题目详情
 
     put:
         【参与任务】 修改题目标签，非空
@@ -144,16 +145,52 @@ class TaskContributeUpdateView(generics.RetrieveUpdateAPIView):
     patch:
         【参与任务】 修改题目标签，非空
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, HasContributed]
+    permission_classes = [permissions.IsAuthenticated, HasContributed]
     serializer_class = TaskContributeUpdateSerializer
     queryset = Contribution.objects.all()
     lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):
-        if request.data['label']:
-            return self.update(request, *args, **kwargs)
+        contribution_id = self.kwargs.get("id", None)
+        contribution = get_object_or_404(Contribution, id=contribution_id)
+        if contribution.project.status == Status(pk='answering'):
+            if request.data['label']:
+                return self.update(request, *args, **kwargs)
+            else:
+                return Response({"message": "Label should not be empty"}, status=400)
         else:
-            return Response({"message": "Label should not be empty"}, status=400)
+            return Response({"message": "Not allowed to check."}, status=400)
+
+    def patch(self, request, *args, **kwargs):
+        return self.put(request, *args, **kwargs)
+
+
+class TaskInspectUpdateView(generics.RetrieveUpdateAPIView):
+    """
+    get:
+        【质检任务】 根据id，获取已答过的题目详情
+
+    put:
+        【质检任务】 修改题目标签，非空
+
+    patch:
+        【质检任务】 修改题目标签，非空
+    """
+    permission_classes = [permissions.IsAuthenticated, HasInspected]
+    serializer_class = TaskInspectUpdateSerializer
+    queryset = Inspection.objects.all()
+    lookup_field = 'id'
+
+    def put(self, request, *args, **kwargs):
+        inspection_id = self.kwargs.get("id", None)
+        inspector = get_object_or_404(Inspection, id=inspection_id)
+        if inspector.project.status == Status(pk='checking'):
+            if request.data['label']:
+                return self.update(request, *args, **kwargs)
+            else:
+                return Response({"message": "Label should not be empty"}, status=400)
+        else:
+            return Response({"message": "Not allowed to check."}, status=400)
 
     def patch(self, request, *args, **kwargs):
         return self.put(request, *args, **kwargs)
