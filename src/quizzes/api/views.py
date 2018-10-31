@@ -195,12 +195,13 @@ class AnswerAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             qc.save()
         instance = self.get_object()
         quizcontributor = QuizContributor.objects.get(quiz_id=quiz_id, contributor=user)
-        if instance:
-            serializer = self.get_serializer(instance)
-            return Response(serializer.data)
-        if quizcontributor.is_completed:
-            return Response({"message": "All questions have been answered,Please check and submit!"}, status=200)
-        elif quizcontributor.status == QuizStatus(pk='submitted'):
+        if quizcontributor.status == QuizStatus(pk='answering'):
+            if instance:
+                serializer = self.get_serializer(instance)
+                return Response(serializer.data)
+            else:
+                return Response({"message": "All questions have been answered,Please check and submit!"}, status=200)
+        else:
             return Response({"message": "Quiz submitted"}, status=200)
 
     def put(self, request, *args, **kwargs):
