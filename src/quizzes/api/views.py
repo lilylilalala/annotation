@@ -305,11 +305,9 @@ class QuestionSubmitAPIView(generics.RetrieveAPIView):
     def put(self, request, *args, **kwargs):
         quiz_id = self.kwargs.get("id", None)
         qc = QuizContributor.objects.get(quiz_id=quiz_id, contributor_id=request.user)
-        print(qc.status, qc.is_completed)
         if qc.status == QuizStatus(pk='answering'):
             if qc.is_completed:
                 qc.status = QuizStatus(pk='submitted')
-                print(1, qc.status)
                 if not qc.accuracy:
                     good_answer = 0
                     for answer in Answer.objects.filter(quiz_contributor=qc):
@@ -322,7 +320,7 @@ class QuestionSubmitAPIView(generics.RetrieveAPIView):
                 uncompleted = Answer.objects.filter(quiz_contributor=qc, label='').count()
                 return Response({"message": "%s questions remain unanswered,Can't be submitted" % uncompleted}, status=400)
         else:
-            return Response({"message": "Quiz submitted"}, status=400)
+            return self.get(request, *args, **kwargs)
 
 
 class QuestionTypeAPIView(generics.ListAPIView):
