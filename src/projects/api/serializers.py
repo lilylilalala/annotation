@@ -4,7 +4,7 @@ from rest_framework.reverse import reverse as api_reverse
 from projects.models import Project
 from targets.api.serializers import TargetSerializer
 from tags.api.serializers import TagBriefSerializer
-
+from quizzes.models import QuizStatus
 
 VERIFY_CHOICE = (
     ('passed', '审核通过'),
@@ -147,7 +147,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         if quiz:
             if quiz.quizcontributor_set.filter(contributor=user):
                 qc = quiz.quizcontributor_set.get(contributor=user)
-                if qc.accuracy:
+                if qc.status == QuizStatus(pk='submitted'):
                     if qc.accuracy < obj.accuracy_requirement:
                         return 'quiz_failed'
                     else:
@@ -158,6 +158,7 @@ class ProjectSerializer(serializers.ModelSerializer):
                 return 'go_to_quiz'
         else:
             return 'go_to_task'
+
 
 class ProjectInlineUserSerializer(ProjectSerializer):
     class Meta:
