@@ -284,6 +284,7 @@ class AnswerUpdateAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
             if request.data['label']:
                 instance.label = request.data['label']
                 instance.save()
+                return self.get(request, *args, **kwargs)
             else:
                 return Response({"message": "Label should not be empty"}, status=400)
         else:
