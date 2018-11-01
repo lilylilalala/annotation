@@ -279,12 +279,14 @@ class AnswerUpdateAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         answer_id = self.kwargs.get("answer_id", None)
-        if request.data['label']:
-            instance = get_object_or_404(Answer, id=answer_id)
-            instance.label = request.data['label']
-            instance.save()
-        else:
-            return Response({"message": "Label should not be empty"}, status=400)
+        instance = get_object_or_404(Answer, id=answer_id)
+        if instance.quiz_contributor.status != QuizStatus(pk='submitted'):
+            if request.data['label']:
+                instance.label = request.data['label']
+                instance.save()
+            else:
+                return Response({"message": "Label should not be empty"}, status=400)
+        return Response({"message": "Quiz submitted,Don't update"}, status=400)
 
 
 class QuestionSubmitAPIView(generics.RetrieveAPIView):
