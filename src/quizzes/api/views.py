@@ -286,7 +286,8 @@ class AnswerUpdateAPIView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
                 instance.save()
             else:
                 return Response({"message": "Label should not be empty"}, status=400)
-        return Response({"message": "Quiz submitted,Don't update"}, status=400)
+        else:
+            return Response({"message": "Quiz submitted,Don't update"}, status=400)
 
 
 class QuestionSubmitAPIView(generics.RetrieveAPIView):
