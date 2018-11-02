@@ -153,6 +153,7 @@ class ContributeResultSerializer(TaskContributeSerializer):
             'id',
             'contributor',
             'contributor_name',
+            'target',
             'text_content',
             'label',
             'submitted',
