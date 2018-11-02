@@ -151,9 +151,11 @@ class ContributeResultSerializer(TaskContributeSerializer):
         model = Contribution
         fields = [
             'id',
-            'label',
             'contributor',
             'contributor_name',
+            'text_content',
+            'label',
+            'submitted',
             'created',
             'updated',
         ]
