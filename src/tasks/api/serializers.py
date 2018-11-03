@@ -147,10 +147,13 @@ class TaskInspectSerializer(serializers.ModelSerializer):
 
 
 class ContributeResultSerializer(TaskContributeSerializer):
+    question_id = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Contribution
         fields = [
             'id',
+            'question_id',
             'contributor',
             'contributor_name',
             'target',
@@ -161,6 +164,12 @@ class ContributeResultSerializer(TaskContributeSerializer):
             'updated',
         ]
         read_only_fields = ['created', 'label']
+
+    def get_question_id(self, obj):
+        contribution = obj.project.contribution_set.filter(contributor=obj.contributor).order_by('created').\
+            values_list('created', flat=True)
+        question_id = list(contribution).index(obj.created)
+        return question_id+1
 
 
 class InspectResultSerializer(TaskInspectSerializer):
