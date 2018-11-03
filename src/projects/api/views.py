@@ -340,7 +340,7 @@ class ProjectMyContributionView(generics.ListAPIView):
         user = self.request.user
         if user is None:
             return Project.task_set.none()
-        return project.contribution_set.filter(contributor=user)
+        return project.contribution_set.filter(contributor=user).order_by('created')
 
 
 class ProjectMyInspectionView(generics.ListAPIView):
