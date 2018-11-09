@@ -97,6 +97,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class AnswerSerializer(serializers.ModelSerializer):
     quiz = serializers.SerializerMethodField(read_only=True)
+    quiz_name = serializers.SerializerMethodField(read_only=True)
     target = serializers.SerializerMethodField(read_only=True)
     text_content = serializers.SerializerMethodField(read_only=True)
 
@@ -105,6 +106,7 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'quiz',
+            'quiz_name',
             'target',
             'text_content',
             'label',
@@ -114,6 +116,9 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     def get_quiz(self, obj):
         return obj.question.quiz.id
+
+    def get_quiz_name(self, obj):
+        return obj.question.quiz.name
 
     def get_target(self, obj):
         target = obj.question.quiz.quiz_target
