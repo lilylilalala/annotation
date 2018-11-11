@@ -173,17 +173,29 @@ class ContributeResultSerializer(TaskContributeSerializer):
 
 
 class InspectResultSerializer(TaskInspectSerializer):
+    question_id = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Inspection
         fields = [
             'id',
-            'label',
+            'question_id',
             'inspector',
             'inspector_name',
+            'target',
+            'text_content',
+            'label',
+            'submitted',
             'created',
             'updated',
         ]
         read_only_fields = ['created', 'label']
+
+    def get_question_id(self, obj):
+        inspection = obj.project.inspection_set.filter(inspector=obj.inspector).order_by('created'). \
+            values_list('created', flat=True)
+        question_id = list(inspection).index(obj.created)
+        return question_id + 1
 
 
 class TaskResultSerializer(serializers.ModelSerializer):
