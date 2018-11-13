@@ -74,4 +74,6 @@ class TagAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generi
         tag_project = tag.tagged_projects.all()
         if tag_project:
             return Response({"message": "The label is already in use and cannot be deleted!"}, status=400)
+        if Tag.objects.filter(parent=tag_id):
+            return Response({"message": "Not allowed here"}, status=400)
         return self.destroy(request, *args, **kwargs)
