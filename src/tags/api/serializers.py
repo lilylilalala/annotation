@@ -47,6 +47,7 @@ class TagBriefSerializer(TagSerializer):
             'id',
             'name',
             'level',
+            'description',
         ]
 
 
