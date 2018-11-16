@@ -28,3 +28,23 @@ class Target(models.Model):
     @property
     def owner(self):
         return self.user
+
+    @property
+    def editable(self):
+        target_quiz = self.target_quizzes.all()
+        if target_quiz:
+            return False
+        target_project = self.target_projects.all()
+        if target_project:
+            return False
+        return True
+
+    @property
+    def deletable(self):
+        target_quiz = self.target_quizzes.all()
+        if target_quiz:
+            return False
+        target_project = self.target_projects.all()
+        if target_project:
+            return False
+        return True

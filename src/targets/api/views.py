@@ -2,8 +2,10 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics, mixins, permissions
 
 from targets.models import Target, TargetType
-from .serializers import TargetSerializer, TargetTypeSerializer
+from .serializers import TargetSerializer, TargetTypeSerializer, TargetDetailSerializer
 from accounts.api.permissions import IsOwnerOrReadOnly, IsStaff
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
 
 
 User = get_user_model()
@@ -51,19 +53,31 @@ class TargetAPIDetailView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, gen
 
     """
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
-    serializer_class = TargetSerializer
+    serializer_class = TargetDetailSerializer
     lookup_field = 'id'
 
     def get_queryset(self, *args, **kwargs):
         return Target.objects.filter(user=self.request.user)
 
     def put(self, request, *args, **kwargs):
+        target_id = self.kwargs.get("id", None)
+        target = get_object_or_404(Target, id=target_id)
+        if not target.editable:
+            return Response({"message": "The target is already in use and cannot be updated!"}, status=400)
         return self.update(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
+        target_id = self.kwargs.get("id", None)
+        target = get_object_or_404(Target, id=target_id)
+        if not target.editable:
+            return Response({"message": "The target is already in use and cannot be updated!"}, status=400)
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        target_id = self.kwargs.get("id", None)
+        target = get_object_or_404(Target, id=target_id)
+        if not target.deletable:
+            return Response({"message": "The target is already in use and cannot be deleted!"}, status=400)
         return self.destroy(request, *args, **kwargs)
 
 

@@ -53,7 +53,7 @@ class Quiz(models.Model):
     name = models.CharField(max_length=128, unique=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_quizzes')
     quiz_type = models.ForeignKey(QuestionType)
-    quiz_target = models.ForeignKey(Target)
+    quiz_target = models.ForeignKey(Target, related_name='target_quizzes')
     quiz_file = models.FileField(
         upload_to=upload_quiz_file_path,
         storage=FileSystemStorage(location=settings.QUIZ_ROOT, base_url=settings.QUIZ_URL),

@@ -16,6 +16,8 @@ class TargetSerializer(serializers.ModelSerializer):
             'type_name',
             'entity',
             'description',
+            'editable',
+            'deletable',
         ]
         read_only_fields = ['user']
 
@@ -47,4 +49,6 @@ class TargetDetailSerializer(TargetSerializer):
             'description',
             'updated',
             'timestamp',
+            'editable',
+            'deletable',
         ]

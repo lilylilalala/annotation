@@ -61,7 +61,7 @@ class Project(models.Model):
     status = models.ForeignKey(Status, default='unreleased')
     private = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
-    project_target = models.ForeignKey(Target)
+    project_target = models.ForeignKey(Target, related_name='target_projects')
     project_file = models.FileField(
         upload_to=upload_project_file_path,
         storage=FileSystemStorage(location=settings.MEDIA_ROOT),
