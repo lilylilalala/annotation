@@ -49,6 +49,8 @@ class TagBriefSerializer(TagSerializer):
             'name',
             'level',
             'description',
+            'editable',
+            'deletable',
         ]
 
 
