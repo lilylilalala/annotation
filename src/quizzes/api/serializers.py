@@ -35,6 +35,7 @@ class QuizSerializer(serializers.ModelSerializer):
             'contributors_number',
             'description',
             'updated',
+            'deletable',
         ]
         read_only_fields = ['founder', 'contributors']
 

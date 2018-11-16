@@ -87,6 +87,13 @@ class Quiz(models.Model):
     def questions_quantity(self):
         return self.question_set.count()
 
+    @property
+    def deletable(self):
+        quiz_project = self.related_projects.all()
+        if quiz_project:
+            return False
+        return True
+
 
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz)

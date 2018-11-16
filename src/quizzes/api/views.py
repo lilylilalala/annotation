@@ -72,7 +72,7 @@ class QuizAPIDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin, mixin
     def delete(self, request, *args, **kwargs):
         quiz_id = self.kwargs.get("id", None)
         quiz = get_object_or_404(Quiz, id=quiz_id)
-        if quiz.related_projects.all():
+        if not quiz.deletable:
             return Response({"message": "The quiz is already in use and cannot be deleted!"}, status=400)
         return self.destroy(request, *args, **kwargs)
 
