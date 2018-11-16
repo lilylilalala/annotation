@@ -22,3 +22,26 @@ class Tag(models.Model):
 
     def __str__(self):
         return str(self.id) + '_' + self.name
+
+    @property
+    def editable(self):
+        tag_quiz = self.tagged_quizzes.all()
+        if tag_quiz:
+            return False
+        tag_project = self.tagged_projects.all()
+        if tag_project:
+            return False
+        return True
+
+    @property
+    def deletable(self):
+        tag_quiz = self.tagged_quizzes.all()
+        if tag_quiz:
+            return False
+        tag_project = self.tagged_projects.all()
+        if tag_project:
+            return False
+        child = Tag.objects.filter(parent=self.id)
+        if child:
+            return False
+        return True

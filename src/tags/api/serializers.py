@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.reverse import reverse as api_reverse
 
 from tags.models import Tag
 
@@ -18,6 +17,8 @@ class TagSerializer(serializers.ModelSerializer):
             'description',
             'founder',
             'updated',
+            'editable',
+            'deletable',
         ]
         read_only_fields = ['updated', 'founder']
 
@@ -64,5 +65,7 @@ class TagDetailSerializer(TagSerializer):
             'description',
             'founder',
             'updated',
+            'editable',
+            'deletable',
         ]
-        read_only_fields = ['updated', 'founder', 'parent', 'level', 'description']
+        read_only_fields = ['updated', 'founder', 'parent', 'level']
