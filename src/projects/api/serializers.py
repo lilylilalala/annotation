@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse as api_reverse
+import re
 
 from projects.models import Project
 from targets.api.serializers import TargetSerializer
@@ -96,6 +97,11 @@ class ProjectSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         "Classification projects must have a inspector since repetition rate unequal to 1.0."
                     )
+
+        contributors_char = data.get('contributors_char')
+        inspector = data.get('inspector')
+        if str(inspector.id) in re.findall('\d+', contributors_char):
+            raise serializers.ValidationError("A user cannot be both as a contributor and a inspector.")
         return data
 
     def get_uri(self, obj):

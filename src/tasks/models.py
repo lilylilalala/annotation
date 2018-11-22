@@ -127,6 +127,19 @@ def project_file_pre_receiver(sender, instance, **kwargs):
         else:
             instance.is_file_changed = False
             instance.project_file = obj.project_file
+        if not instance.repetition_rate == obj.repetition_rate and not instance.is_file_changed:
+            Contribution.objects.filter(project=instance).delete()
+            Task.objects.filter(project=instance.id).update(copy=int(instance.repetition_rate))
+            if 1 < instance.repetition_rate < 2:
+                length = instance.task_set.count()
+                num = int((instance.repetition_rate - 1) * length)
+                ids = instance.task_set.values_list("id", flat=True)
+                rand_list = random.sample(set(ids), num)
+                for i in rand_list:
+                    Task.objects.filter(id=i).update(copy=2)
+            for task in Task.objects.filter(project=instance):
+                for copy in range(task.copy):
+                    Contribution.objects.create(project=instance, task=task)
     except:
         pass
 

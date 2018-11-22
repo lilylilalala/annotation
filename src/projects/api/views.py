@@ -174,7 +174,7 @@ class ProjectAddContributorsView(generics.ListAPIView, mixins.UpdateModelMixin):
         project = get_object_or_404(Project, id=project_id)
         if project_id is None:
             return User.objects.none()
-        return User.objects.exclude(contributed_projects=project_id)
+        return User.objects.exclude(contributed_projects=project_id).exclude(inspected_projects=project_id)
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
@@ -407,12 +407,12 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
             return Response({"message": "Project is not completed"}, status=400)
 
 
-class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
+class ProjectInspectorView(generics.ListAPIView, mixins.UpdateModelMixin):
     """
     get:
-        【检查任务】 获取当前任务的检查人
+        【成员管理】 获取未参与任务的标注人列表
     put:
-        【检查任务】 根据提交的user_id，通过put方法更新project的检查人
+        【更换成员】 根据提交的user_id，通过put方法更新project的检查人
     """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = EditContributorsSerializer
@@ -420,16 +420,12 @@ class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     search_fields = ('email', 'full_name')
     ordering_fields = ('email', 'full_name')
 
-    def get(self, request, *args, **kwargs):
+    def get_queryset(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
-        if not project.founder == request.user:
-            return Response({"message": "You must be the owner of this content to change!"}, status=400)
-        instance = project.inspector
-        if instance:
-            serializer = self.get_serializer(instance)
-            return Response(serializer.data)
-        return Response({"message": "No inspector in the project!"}, status=400)
+        if project_id is None:
+            return User.objects.none()
+        return User.objects.exclude(contributed_projects=project_id).exclude(inspected_projects=project_id)
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
