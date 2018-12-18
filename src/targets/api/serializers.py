@@ -52,3 +52,4 @@ class TargetDetailSerializer(TargetSerializer):
             'editable',
             'deletable',
         ]
+        read_only_fields = ['user']
