@@ -100,8 +100,9 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         contributors_char = data.get('contributors_char')
         inspector = data.get('inspector')
-        if str(inspector.id) in re.findall('\d+', contributors_char):
-            raise serializers.ValidationError("A user cannot be both as a contributor and a inspector.")
+        if inspector:
+            if str(inspector.id) in re.findall('\d+', contributors_char):
+                raise serializers.ValidationError("A user cannot be both as a contributor and a inspector.")
         return data
 
     def get_uri(self, obj):
