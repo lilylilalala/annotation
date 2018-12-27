@@ -407,10 +407,10 @@ class ProjectResultDownloadView(generics.RetrieveAPIView):
             return Response({"message": "Project is not completed"}, status=400)
 
 
-class ProjectInspectorView(generics.ListAPIView, mixins.UpdateModelMixin):
+class ProjectInspectorView(generics.RetrieveAPIView, mixins.UpdateModelMixin):
     """
     get:
-        【成员管理】 获取未参与任务的标注人列表
+        【成员管理】 获取任务的质检人
     put:
         【更换成员】 根据提交的user_id，通过put方法更新project的检查人
     """
@@ -420,12 +420,14 @@ class ProjectInspectorView(generics.ListAPIView, mixins.UpdateModelMixin):
     search_fields = ('email', 'full_name')
     ordering_fields = ('email', 'full_name')
 
-    def get_queryset(self, *args, **kwargs):
+    def get_object(self, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
         if project_id is None:
-            return User.objects.none()
-        return User.objects.exclude(contributed_projects=project_id).exclude(inspected_projects=project_id)
+            return User.objects.none().first()
+        if project.inspector is None:
+            return User.objects.none().first()
+        return User.objects.get(id=project.inspector.id)
 
     def put(self, request, *args, **kwargs):
         project_id = self.kwargs.get("id", None)
