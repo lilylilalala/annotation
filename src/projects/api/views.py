@@ -267,11 +267,15 @@ class ProjectVerifyDetailView(generics.RetrieveAPIView, mixins.UpdateModelMixin)
         project = get_object_or_404(Project, id=project_id)
         if project.project_status != 'verifying':
             return Response({"detail": "Not allowed here"}, status=400)
+        user_id = self.request.user
+        if project.founder == user_id:
+            return Response({"detail": "Not allowed here"}, status=400)
         verify_status = request.data['verify_status']
         if verify_status == 'passed':
             Project.objects.filter(id=project.id).update(status='answering')
         else:
             Project.objects.filter(id=project.id).update(status='failed')
+        Project.objects.filter(id=project.id).update(verify_staff=self.request.user)
         return self.get(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
