@@ -24,7 +24,7 @@ class TagAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
-    search_fields = ('name', 'founder')
+    search_fields = ('name', 'founder__email')
     ordering_fields = ('name', 'updated')
     filter_fields = ('level',)
 
