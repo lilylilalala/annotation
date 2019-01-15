@@ -146,6 +146,8 @@ class ContributorsListView(generics.ListAPIView, mixins.UpdateModelMixin):
         project_id = self.kwargs.get("id", None)
         project = get_object_or_404(Project, id=project_id)
         user = request.user
+        if user == project.inspector:
+            return Response({"detail": "Not allowed here"}, status=400)
         if user in project.contributors.all():
             project.contributors.remove(user)
             return Response({"message": "You have successfully exited the project!"}, status=200)
