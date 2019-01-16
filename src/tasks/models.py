@@ -166,7 +166,7 @@ def contribution_updated_receiver(sender, instance, *args, **kwargs):
         for task in tasks:
             labels = task.contribution_set.values_list('label', flat=True)
             if len(set(labels)) == 1:
-                task.label = instance.label
+                task.label = labels[0]
             else:
                 top_labels = Counter(labels).most_common(2)
                 if top_labels[0][1] != top_labels[1][1]:
