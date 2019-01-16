@@ -240,7 +240,8 @@ class ProjectVerifyListView(generics.ListAPIView):
     ordering_fields = ('project_type', 'timestamp')
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Project.objects.exclude(status='unreleased')
+        user = self.request.user
+        queryset = Project.objects.exclude(status='unreleased').exclude(founder=user)
         verify_status = self.request.GET.get("verify_status", None)
         if verify_status:
             project_ids = [x.id for x in queryset if x.verify_status == verify_status]

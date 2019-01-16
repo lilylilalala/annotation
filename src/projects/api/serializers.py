@@ -220,7 +220,6 @@ class ProjectReleaseSerializer(ProjectSerializer):
 
 class ProjectInlineVerifySerializer(ProjectSerializer):
     verify_status = serializers.ChoiceField(default='passed', choices=VERIFY_CHOICE)
-    verifiable = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -236,16 +235,8 @@ class ProjectInlineVerifySerializer(ProjectSerializer):
             'verify_status_name',
             'project_file',
             'uri',
-            'verifiable',
         ]
         read_only_fields = ['name', 'project_type', 'founder', 'description', 'deadline', 'project_file']
-
-    def get_verifiable(self, obj):
-        request = self.context.get('request')
-        user = request.user
-        if obj.founder == user:
-            return False
-        return True
 
 
 class ProjectTargetSerializer(ProjectSerializer):
