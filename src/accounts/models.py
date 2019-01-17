@@ -105,3 +105,10 @@ class User(AbstractBaseUser):
 
     def user_id(self):
         return self.id
+
+
+class ModuleType(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+
+    def __str__(self):
+        return str(self.name)

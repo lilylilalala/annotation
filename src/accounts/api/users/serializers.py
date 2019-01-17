@@ -6,6 +6,7 @@ from rest_framework.reverse import reverse as api_reverse
 
 from grades.models import Grade
 from tags.models import Tag
+from accounts.models import ModuleType
 
 User = get_user_model()
 
@@ -72,6 +73,7 @@ class UserDetailUpdateSerializer(serializers.ModelSerializer):
 
 class UserInlineSerializer(serializers.ModelSerializer):
     uri = serializers.SerializerMethodField(read_only=True)
+    available_modules = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -84,12 +86,23 @@ class UserInlineSerializer(serializers.ModelSerializer):
             'user_type',
             'timestamp',
             'uri',
+            'available_modules',
         ]
         read_only_fields = ['email', 'staff',  'admin', 'user_type', 'full_name']
 
     def get_uri(self, obj):
         request = self.context.get('request')
         return api_reverse('api-users:detail', kwargs={'id': obj.id}, request=request)
+
+    def get_available_modules(self, obj):
+        request = self.context.get('request')
+        staff = request.user.is_staff
+        admin = request.user.is_admin
+        if admin:
+            return ModuleType.objects.all().order_by('id').values_list('name', flat=True)
+        if staff:
+            return ModuleType.objects.exclude(name='标签管理').order_by('id').values_list('name', flat=True)
+        return ModuleType.objects.exclude(name__in=['标签管理', '任务审核']).order_by('id').values_list('name', flat=True)
 
 
 class EditContributorsSerializer(UserDetailSerializer):
